@@ -13,6 +13,7 @@ import {
   cleanupOldMessages 
 } from '../database/schema.js';
 import { logger } from '../utils/logger.js';
+import { embeddingsService, EmbeddingsService } from './embeddings.js';
 
 export class MemoryService {
   private db: Database.Database;
@@ -225,6 +226,11 @@ export class MemoryService {
     // Get user_id for return value
     const session = this.db.prepare('SELECT user_id FROM sessions WHERE session_id = ?').get(sessionId) as { user_id: string };
 
+    // Generate and store embedding asynchronously (don't block return)
+    this.generateAndStoreEmbedding(messageId, content).catch((error: unknown) => {
+      logger.error('Failed to generate embedding:', error instanceof Error ? { message: error.message } : {});
+    });
+
     return {
       id: messageId,
       session_id: sessionId,
@@ -236,6 +242,37 @@ export class MemoryService {
       emotion: metadata?.emotion,
       safety_check: metadata?.safetyCheck ? JSON.stringify(metadata.safetyCheck) : undefined,
     };
+  }
+
+  /**
+   * Generate and store embedding for a message
+   * Called asynchronously after message is stored
+   */
+  private async generateAndStoreEmbedding(messageId: string, content: string): Promise<void> {
+    try {
+      // Generate embedding
+      const embedding = await embeddingsService.generateEmbedding(content);
+      const embeddingBuffer = EmbeddingsService.serializeEmbedding(embedding);
+
+      // Store in embeddings table
+      this.db
+        .prepare(
+          `INSERT INTO embeddings (message_id, embedding, dimension, model, created_at)
+           VALUES (?, ?, ?, ?, ?)`
+        )
+        .run(
+          messageId,
+          embeddingBuffer,
+          EmbeddingsService.getDimension(),
+          EmbeddingsService.getModelName(),
+          Date.now()
+        );
+
+      logger.debug('🦋 Embedding generated and stored', { messageId });
+    } catch (error) {
+      logger.error('Failed to generate/store embedding:', error instanceof Error ? { message: error.message } : {});
+      throw error;
+    }
   }
 
   /**
@@ -341,6 +378,182 @@ export class MemoryService {
   }
 
   /**
+   * Summarize conversation history for a session
+   * Creates condensed version for long conversations
+   */
+  async summarizeConversation(
+    sessionId: string,
+    options?: {
+      maxMessages?: number;
+      preserveRecent?: number;
+    }
+  ): Promise<{
+    summary: string;
+    messagesSummarized: number;
+    oldestTimestamp: number;
+    newestTimestamp: number;
+  }> {
+    const {
+      maxMessages = 50,
+      preserveRecent = 10,
+    } = options || {};
+
+    // Get messages from session (excluding most recent ones)
+    const messages = this.db
+      .prepare(
+        `SELECT * FROM messages 
+         WHERE session_id = ? 
+         ORDER BY timestamp ASC 
+         LIMIT ?`
+      )
+      .all(sessionId, maxMessages) as ConversationMessage[];
+
+    if (messages.length === 0) {
+      return {
+        summary: '',
+        messagesSummarized: 0,
+        oldestTimestamp: 0,
+        newestTimestamp: 0,
+      };
+    }
+
+    // Don't summarize if we have fewer messages than preserve threshold
+    if (messages.length <= preserveRecent) {
+      return {
+        summary: '',
+        messagesSummarized: 0,
+        oldestTimestamp: messages[0].timestamp,
+        newestTimestamp: messages[messages.length - 1].timestamp,
+      };
+    }
+
+    // Build summary from message content
+    const summary = this.buildConversationSummary(messages.slice(0, -preserveRecent));
+
+    return {
+      summary,
+      messagesSummarized: messages.length - preserveRecent,
+      oldestTimestamp: messages[0].timestamp,
+      newestTimestamp: messages[messages.length - 1].timestamp,
+    };
+  }
+
+  /**
+   * Build a concise summary of conversation messages
+   * Extracts key topics and emotional flow
+   */
+  private buildConversationSummary(messages: ConversationMessage[]): string {
+    if (messages.length === 0) return '';
+
+    // Group messages into conversation turns
+    const turns: string[] = [];
+    let currentTurn = '';
+    let currentRole = '';
+
+    for (const msg of messages) {
+      if (msg.role !== currentRole) {
+        if (currentTurn) {
+          turns.push(`${currentRole === 'user' ? 'User' : 'Bambi'}: ${currentTurn}`);
+        }
+        currentTurn = msg.content;
+        currentRole = msg.role;
+      } else {
+        currentTurn += ' ' + msg.content;
+      }
+    }
+    
+    // Add last turn
+    if (currentTurn) {
+      turns.push(`${currentRole === 'user' ? 'User' : 'Bambi'}: ${currentTurn}`);
+    }
+
+    // Create condensed summary
+    const summaryParts: string[] = [];
+    
+    // Extract topics (simple keyword extraction)
+    const topicKeywords = this.extractKeywords(messages.map(m => m.content).join(' '));
+    if (topicKeywords.length > 0) {
+      summaryParts.push(`Topics discussed: ${topicKeywords.slice(0, 5).join(', ')}`);
+    }
+
+    // Extract emotional tone
+    const emotionalTone = this.detectEmotionalTone(messages);
+    if (emotionalTone) {
+      summaryParts.push(`Emotional tone: ${emotionalTone}`);
+    }
+
+    // Add sample exchanges (first and last)
+    if (turns.length > 0) {
+      summaryParts.push(`\nKey exchanges:\n- ${turns[0]}`);
+      if (turns.length > 1) {
+        summaryParts.push(`- ${turns[turns.length - 1]}`);
+      }
+    }
+
+    return summaryParts.join('\n');
+  }
+
+  /**
+   * Extract keywords from text
+   */
+  private extractKeywords(text: string): string[] {
+    // Remove common words
+    const stopWords = new Set([
+      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+      'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'be',
+      'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
+      'would', 'should', 'could', 'can', 'may', 'might', 'i', 'you', 'he',
+      'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my',
+      'your', 'his', 'her', 'its', 'our', 'their', 'this', 'that', 'these',
+      'those', 'what', 'which', 'who', 'when', 'where', 'why', 'how',
+    ]);
+
+    // Tokenize and filter
+    const words = text.toLowerCase().match(/\b\w+\b/g) || [];
+    const wordCounts = new Map<string, number>();
+
+    for (const word of words) {
+      if (word.length > 3 && !stopWords.has(word)) {
+        wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
+      }
+    }
+
+    // Sort by frequency
+    const sorted = Array.from(wordCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([word]) => word);
+
+    return sorted.slice(0, 10);
+  }
+
+  /**
+   * Detect emotional tone from messages
+   */
+  private detectEmotionalTone(messages: ConversationMessage[]): string {
+    const text = messages.map(m => m.content).join(' ').toLowerCase();
+
+    const patterns = {
+      positive: /(happy|joy|love|great|wonderful|amazing|excited|good|nice|thanks)/g,
+      negative: /(sad|angry|upset|frustrated|worried|anxious|bad|terrible|hate)/g,
+      playful: /(haha|lol|😂|🤣|😜|fun|play|tease)/g,
+      supportive: /(support|help|care|understand|here for you|comfort)/g,
+    };
+
+    const scores: Record<string, number> = {};
+    for (const [tone, pattern] of Object.entries(patterns)) {
+      const matches = text.match(pattern);
+      scores[tone] = matches ? matches.length : 0;
+    }
+
+    // Find dominant tone
+    const maxScore = Math.max(...Object.values(scores));
+    if (maxScore === 0) return 'neutral';
+
+    const dominantTone = Object.entries(scores).find(([, score]) => score === maxScore)?.[0];
+    return dominantTone || 'neutral';
+  }
+
+  /**
    * Close database connection
    */
   close(): void {
@@ -348,3 +561,4 @@ export class MemoryService {
     logger.info('💎 MemoryService closed');
   }
 }
+

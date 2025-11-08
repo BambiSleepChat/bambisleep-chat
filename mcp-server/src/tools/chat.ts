@@ -1,12 +1,14 @@
 /**
- * 🌸 Chat Tools - MCP Tool Definitions (Phase 4 Memory Integration)
- * Handles chat message processing with LLM integration and conversation persistence
+ * 🌸 Chat Tools - MCP Tool Definitions (Phase 4 RAG Integration)
+ * Handles chat message processing with LLM, RAG semantic search, and personalization
  */
 
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import { z } from 'zod';
 import { memoryService } from './memory.js';
+import { RAGService } from '../services/rag.js';
+import { personalizationEngine } from '../services/personalization.js';
 import { logger } from '../utils/logger.js';
 
 const anthropic = new Anthropic({
@@ -16,6 +18,9 @@ const anthropic = new Anthropic({
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// Initialize RAG service
+const ragService = new RAGService(memoryService['db']);
 
 interface MCPTool {
   name: string;
@@ -98,9 +103,34 @@ async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): 
       }));
     }
 
-    // Add personalization context
+    // Use RAG to find relevant past conversations
+    const relevantMemories = await ragService.getRelevantContext(
+      message,
+      userId,
+      session.session_id,
+      {
+        maxMessages: 3,
+        minSimilarity: 0.65,
+        includeCurrentSession: false, // Don't include current session (already in recent history)
+      }
+    );
+
+    // Generate personalized context
+    const personalizedContext = personalizationEngine.generateContext(
+      profile,
+      recentMessages.reverse(), // Chronological order for analysis
+      relevantMemories.map((msg, index) => ({
+        message: msg,
+        similarity: 0.7, // Placeholder (already filtered by minSimilarity)
+        rank: index + 1,
+      })),
+      message
+    );
+
+    // Build enhanced context prefix with personalization + memories
+    const contextParts: string[] = [];
+
     if (profile) {
-      const contextParts: string[] = [];
       if (profile.nickname) {
         contextParts.push(`User's nickname: ${profile.nickname}`);
       }
@@ -117,11 +147,26 @@ async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): 
           // Ignore invalid JSON
         }
       }
-
-      if (contextParts.length > 0) {
-        contextPrefix = `[Context: ${contextParts.join(' | ')}]\n\n`;
-      }
     }
+
+    // Add relevant memories if found
+    if (relevantMemories.length > 0) {
+      const memoryStrings = relevantMemories.map((msg, idx) => {
+        const timeAgo = getTimeAgo(msg.timestamp);
+        return `${idx + 1}. ${timeAgo}: ${msg.role === 'user' ? 'They said' : 'You said'}: "${msg.content.substring(0, 100)}${msg.content.length > 100 ? '...' : ''}"`;
+      });
+      contextParts.push(`\nRelevant past conversations:\n${memoryStrings.join('\n')}`);
+    }
+
+    if (contextParts.length > 0) {
+      contextPrefix = `[Context: ${contextParts.join(' | ')}]\n\n`;
+    }
+
+    logger.info('🔮 RAG context loaded', { 
+      userId, 
+      recentMessages: recentMessages.length, 
+      relevantMemories: relevantMemories.length 
+    });
   }
 
   // Select model based on tier
@@ -196,6 +241,31 @@ async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): 
   } catch (error) {
     logger.error('LLM API error', { error, model });
     throw new Error('Failed to get response from AI model');
+  }
+}
+
+/**
+ * Format timestamp as human-readable "time ago"
+ */
+function getTimeAgo(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 60) {
+    return `${minutes} min ago`;
+  } else if (hours < 24) {
+    return `${hours} hr ago`;
+  } else if (days < 7) {
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  } else if (days < 30) {
+    const weeks = Math.floor(days / 7);
+    return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+  } else {
+    const months = Math.floor(days / 30);
+    return `${months} month${months > 1 ? 's' : ''} ago`;
   }
 }
 
