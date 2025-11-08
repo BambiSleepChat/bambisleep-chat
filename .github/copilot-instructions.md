@@ -6,10 +6,10 @@
 
 **Two codebases in one repo:**
 
-1. `mcp-server/` — Node.js 18+ TypeScript MCP control tower ✅ **Phase 3 complete** (78/78 tests passing, ready for Phase 4)
+1. `mcp-server/` — Node.js 18+ TypeScript MCP control tower ✅ **Phase 4 complete** (113/113 tests passing, ready for Phase 5)
 2. `unity-avatar/` — Unity 6.2 C# CatGirl avatar system (📋 **specification only**: complete C# class designs in UNITY_SETUP_GUIDE.md, no Unity install yet)
 
-**Current branch:** `prod` | **Default branch:** `main`
+**Current branch:** `phase-4-rag-personalization` | **Default branch:** `main` | **Stable branch:** `prod`
 
 **Current Implementation Status:**
 
@@ -20,6 +20,7 @@
 - ✅ WebSocket Unity bridge (structure ready, not tested)
 - ✅ SQLite persistence with embeddings storage (Phase 4 complete)
 - ✅ RAG with semantic search and personalization engine (Phase 4 complete)
+- ✅ Fire-and-forget async embedding generation pattern
 
 ## Critical Context
 
@@ -131,14 +132,28 @@ Task: "Validate All"               # Full CI check
 - ✅ All Phase 3 tests passing (54 safety + 24 integration + 17 memory = 95)
 - ✅ All Phase 4 tests passing (18 RAG/personalization tests)
 - ✅ **Total: 113/113 tests (100% pass rate)**
-- ✅ Embeddings service with Xenova/all-MiniLM-L6-v2 transformer
+- ✅ Embeddings service with Xenova/all-MiniLM-L6-v2 transformer (384-dim vectors)
 - ✅ Semantic search with vector similarity and relevance scoring
 - ✅ Personalization engine with 4 conversation styles
 - ✅ Conversation summarization with NLP keyword/emotion extraction
-- ✅ Auto-embedding generation on message storage
-- ✅ Chat tool RAG integration retrieving relevant context
+- ✅ Auto-embedding generation on message storage (fire-and-forget async pattern)
+- ✅ Chat tool RAG integration retrieving relevant context (3 most relevant past conversations)
 - ⚠️ Claude API integration requires `ANTHROPIC_API_KEY` for live testing
 - ⏸️ WebSocket integration testing with mock Unity client (future - Unity not installed)
+
+**Critical Async Pattern - Fire-and-Forget Embeddings:**
+
+```typescript
+// Pattern from memory.ts storeMessage()
+this.generateAndStoreEmbedding(messageId, content).catch((error: unknown) => {
+  logger.error(
+    "Failed to generate embedding:",
+    error instanceof Error ? { message: error.message } : {}
+  );
+});
+// Message storage returns immediately, embedding generation happens async
+// Prevents blocking user-facing responses while maintaining semantic search capability
+```
 
 ### Unity Project (Specification/Future Vision)
 
@@ -160,9 +175,17 @@ cd catgirl-avatar-project
 User Input → MCP Server (port 3000)
            → SafetyFilter.validate() [middleware/safety.ts]
            → Persona enforcement [personas/bambi-core-persona.yaml]
+           → RAG Context Retrieval [services/rag.ts]
+              ├── Query embedding generation (Xenova/all-MiniLM-L6-v2)
+              ├── Vector similarity search (cosine distance, threshold 0.65)
+              ├── Top 3 relevant past conversations injected into prompt
+              └── Personalization analysis (style, topics, engagement)
            → LLM processing (Claude 3.5 Sonnet - selected for boundary adherence)
+           → PersonaValidator.validate() [middleware/persona-validator.ts]
            → Unity Avatar via WebSocket [services/unity-bridge.ts] (not yet tested)
            → Response to user
+           → Message storage [services/memory.ts]
+              └── Async embedding generation (fire-and-forget, no blocking)
 ```
 
 **LLM Model Decision:** Claude 3.5 Sonnet selected as primary model (see `docs/architecture-decision-record.md`):
@@ -177,6 +200,8 @@ User Input → MCP Server (port 3000)
 - WebSocket on port 3001 for Unity ↔ MCP bidirectional messaging (⚠️ **not yet tested**)
 - MCP tools expose: `chat_send_message`, `avatar_set_emotion`, `memory_store`
 - Safety violations trigger redirect responses, never pass to LLM
+- RAG semantic search injects top 3 most relevant past conversations (0.65 similarity threshold)
+- Embeddings generated asynchronously after message storage (doesn't block response)
 
 ## Code Patterns in This Codebase
 
@@ -225,6 +250,75 @@ export class SafetyFilter {
 }
 ```
 
+### RAG Semantic Search Pattern (rag.ts + chat.ts)
+
+```typescript
+// In chat.ts - retrieve relevant context before LLM call
+const relevantMemories = await ragService.getRelevantContext(
+  message,
+  userId,
+  sessionId,
+  {
+    maxMessages: 3,
+    minSimilarity: 0.65,
+    includeCurrentSession: false, // Avoid duplication with recent history
+  }
+);
+
+// RAG service performs vector similarity search
+async semanticSearch(query: string, options: SearchOptions): Promise<SearchResult[]> {
+  const queryEmbedding = await embeddingsService.generateEmbedding(query);
+
+  // Fetch all messages with embeddings from SQLite
+  const rows = this.db.prepare(`
+    SELECT m.*, e.embedding FROM messages m
+    JOIN embeddings e ON m.id = e.message_id
+    WHERE m.user_id = ? AND m.id NOT IN (...)
+  `).all(userId);
+
+  // Calculate cosine similarity for each message
+  for (const row of rows) {
+    const messageEmbedding = EmbeddingsService.deserializeEmbedding(row.embedding);
+    const similarity = EmbeddingsService.cosineSimilarity(queryEmbedding, messageEmbedding);
+
+    if (similarity >= minSimilarity) {
+      results.push({ message: row, similarity, rank: 0 });
+    }
+  }
+
+  // Sort by relevance (similarity × recency × length × role boost)
+  return results.sort((a, b) => b.relevanceScore - a.relevanceScore).slice(0, topK);
+}
+```
+
+### Fire-and-Forget Async Pattern (memory.ts)
+
+```typescript
+// Critical pattern: don't block user responses while generating embeddings
+async storeMessage(...): Promise<ConversationMessage> {
+  // Store message in SQLite (synchronous, fast)
+  const messageId = uuidv4();
+  this.db.prepare('INSERT INTO messages ...').run(...);
+
+  // Generate embedding asynchronously WITHOUT awaiting
+  // Catches errors internally, logs but doesn't throw
+  this.generateAndStoreEmbedding(messageId, content).catch((error: unknown) => {
+    logger.error('Failed to generate embedding:', error instanceof Error ? { message: error.message } : {});
+  });
+
+  // Return immediately - embedding happens in background
+  return { id: messageId, ... };
+}
+
+private async generateAndStoreEmbedding(messageId: string, content: string): Promise<void> {
+  const embedding = await embeddingsService.generateEmbedding(content); // 100-300ms
+  const embeddingBuffer = EmbeddingsService.serializeEmbedding(embedding);
+  this.db.prepare('INSERT INTO embeddings ...').run(messageId, embeddingBuffer, ...);
+}
+```
+
+**Why this matters:** Embedding generation takes 100-300ms. Blocking on this would make every chat response feel sluggish. The fire-and-forget pattern ensures instant message storage while embeddings populate in the background for future semantic searches.
+
 ### Unity C# Patterns (from UNITY_SETUP_GUIDE.md)
 
 ```csharp
@@ -258,6 +352,12 @@ public class CatgirlController : NetworkBehaviour {
 
 ❌ **Don't:** Modify MCP server without updating tests
 ✅ **Do:** Run `npm run validate` before committing (enforces 100% coverage goal)
+
+❌ **Don't:** Block user responses while generating embeddings
+✅ **Do:** Use fire-and-forget pattern for async operations that don't affect response content
+
+❌ **Don't:** Hardcode similarity thresholds - they vary by use case
+✅ **Do:** Use configurable thresholds (0.65 for cross-session, 0.5 for exploratory searches)
 
 ## Project Status Reference
 
