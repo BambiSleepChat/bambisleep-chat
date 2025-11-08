@@ -8,7 +8,7 @@ import OpenAI from 'openai';
 import { z } from 'zod';
 import { memoryService } from './memory.js';
 import { RAGService } from '../services/rag.js';
-import { personalizationEngine } from '../services/personalization.js';
+// import { personalizationEngine } from '../services/personalization.js'; // Reserved for future use
 import { logger } from '../utils/logger.js';
 
 const anthropic = new Anthropic({
@@ -115,17 +115,17 @@ async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): 
       }
     );
 
-    // Generate personalized context
-    const personalizedContext = personalizationEngine.generateContext(
-      profile,
-      recentMessages.reverse(), // Chronological order for analysis
-      relevantMemories.map((msg, index) => ({
-        message: msg,
-        similarity: 0.7, // Placeholder (already filtered by minSimilarity)
-        rank: index + 1,
-      })),
-      message
-    );
+    // Generate personalized context (for future use in advanced personalization)
+    // const personalizedContext = personalizationEngine.generateContext(
+    //   profile,
+    //   recentMessages.reverse(), // Chronological order for analysis
+    //   relevantMemories.map((msg, index) => ({
+    //     message: msg,
+    //     similarity: 0.7, // Placeholder (already filtered by minSimilarity)
+    //     rank: index + 1,
+    //   })),
+    //   message
+    // );
 
     // Build enhanced context prefix with personalization + memories
     const contextParts: string[] = [];

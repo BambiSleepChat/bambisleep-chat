@@ -9,14 +9,15 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   type CallToolRequest,
-  type ListToolsRequest,
 } from '@modelcontextprotocol/sdk/types.js';
 import dotenv from 'dotenv';
 import { chatTools } from './tools/chat.js';
 import { avatarTools } from './tools/avatar.js';
 import { memoryTools } from './tools/memory.js';
 import { privacyTools } from './tools/privacy.js';
-import { SafetyFilter } from './middleware/safety.js';
+import { voiceTools } from './tools/voice.js';
+import { visionTools } from './tools/vision.js';
+import { SafetyFilter, type Message } from './middleware/safety.js';
 import { startUnityBridge } from './services/unity-bridge.js';
 import { logger } from './utils/logger.js';
 
@@ -39,8 +40,15 @@ const server = new Server(
 // Initialize safety filter
 const safetyFilter = new SafetyFilter();
 
-// Combine all tool definitions (Phase 5: Added privacy tools)
-const allTools = [...chatTools, ...avatarTools, ...memoryTools, ...privacyTools];
+// Combine all tool definitions (Phase 7: Added voice & vision tools)
+const allTools = [
+  ...chatTools,
+  ...avatarTools,
+  ...memoryTools,
+  ...privacyTools,
+  ...voiceTools,
+  ...visionTools,
+];
 
 /**
  * Handle tool list requests
@@ -73,9 +81,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
 
     // Apply safety filtering for chat tools
     if (name === 'chat_send_message' && args && 'message' in args) {
+      const conversationHistory = Array.isArray(args.conversationHistory) 
+        ? args.conversationHistory as Message[]
+        : [];
+      
       const safetyResult = await safetyFilter.validate(
         args.message as string,
-        args.conversationHistory as any[] || []
+        conversationHistory
       );
 
       if (!safetyResult.safe) {

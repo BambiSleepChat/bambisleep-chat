@@ -83,8 +83,6 @@ export class SafetyFilter {
     userMessage: string,
     conversationHistory: Message[] = []
   ): Promise<SafetyResult> {
-    const lowerMessage = userMessage.toLowerCase();
-
     // Check banned patterns first (highest priority)
     for (const { pattern, type } of this.bannedPatterns) {
       if (pattern.test(userMessage)) {
@@ -126,7 +124,7 @@ export class SafetyFilter {
   /**
    * Handle specific violation types with appropriate responses
    */
-  private handleViolation(type: ViolationType, message: string): SafetyResult {
+  private handleViolation(type: ViolationType, _message: string): SafetyResult {
     switch (type) {
       case ViolationType.COERCION:
         return {

@@ -14,7 +14,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "clean:dist": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "typecheck": "tsc --noEmit",
-    "validate": "npm run typecheck && npm run lint && npm run test"
+    "validate": "npm run typecheck && npm run lint && npm run test",
+    "format:hex": "node ../.github/scripts/format-hex-codes.js ../.github/copilot-instructions.md"
   },
   "keywords": [
     "mcp",

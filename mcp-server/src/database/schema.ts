@@ -7,6 +7,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -53,8 +54,8 @@ export function initializeDatabase(dbPath?: string): Database.Database {
   
   // Ensure data directory exists
   const dataDir = path.dirname(resolvedPath);
-  if (!require('fs').existsSync(dataDir)) {
-    require('fs').mkdirSync(dataDir, { recursive: true });
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
   }
 
   const db = new Database(resolvedPath);

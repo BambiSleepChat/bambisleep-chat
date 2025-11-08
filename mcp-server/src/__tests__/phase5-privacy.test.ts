@@ -187,19 +187,28 @@ describe('Phase 5: Privacy & Consent Management', () => {
       const userId = 'user-audit-4';
       await memoryService.createOrUpdateUser(userId);
 
-      await consentService.deleteUserData(userId);
-
-      // Audit logs should persist even after user deletion
-      // (in production, might archive to separate table)
-      const auditLogs = db
+      // Query audit logs BEFORE deletion (since user_id will be nullified)
+      // Or we could query by resource_id which persists
+      const auditLogsBefore = db
         .prepare('SELECT * FROM audit_logs WHERE user_id = ?')
         .all(userId);
 
-      const deletionLog = auditLogs.find((log: any) =>
+      await consentService.deleteUserData(userId);
+
+      // After deletion, query by resource_id (which persists)
+      const auditLogsAfter = db
+        .prepare('SELECT * FROM audit_logs WHERE resource_id = ? AND action = ?')
+        .all(userId, 'data_deletion_requested');
+
+      // Check that deletion was logged (either before nullification or via resource_id)
+      const deletionLog = auditLogsBefore.find((log: any) =>
         log.action === 'data_deletion_requested'
-      );
+      ) || auditLogsAfter[0];
 
       expect(deletionLog).toBeDefined();
+      if (deletionLog) {
+        expect((deletionLog as any).action).toBe('data_deletion_requested');
+      }
     });
   });
 
