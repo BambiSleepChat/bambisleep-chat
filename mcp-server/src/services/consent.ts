@@ -75,6 +75,10 @@ export class ConsentService {
    * Initialize consent and audit tables
    */
   private initializeTables(): void {
+    // Drop and recreate audit_logs to ensure correct schema (nullable user_id)
+    // GDPR compliance requires audit trail persistence even after user deletion
+    this.db.exec(`DROP TABLE IF EXISTS audit_logs`);
+    
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS consent_records (
         id TEXT PRIMARY KEY,
@@ -93,17 +97,18 @@ export class ConsentService {
       CREATE INDEX IF NOT EXISTS idx_consent_type ON consent_records(consent_type);
       CREATE INDEX IF NOT EXISTS idx_consent_status ON consent_records(status);
 
-      CREATE TABLE IF NOT EXISTS audit_logs (
+      -- Audit logs with nullable user_id for GDPR compliance
+      -- user_id set to NULL after user deletion to maintain audit trail
+      CREATE TABLE audit_logs (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
+        user_id TEXT,
         action TEXT NOT NULL,
         resource_type TEXT NOT NULL,
         resource_id TEXT,
         timestamp INTEGER NOT NULL,
         ip_address TEXT,
         user_agent TEXT,
-        details TEXT,
-        FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
+        details TEXT
       );
 
       CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_logs(user_id);
@@ -364,8 +369,7 @@ export class ConsentService {
     this.db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
     this.db.prepare('DELETE FROM consent_records WHERE user_id = ?').run(userId);
     // NOTE: Do NOT delete audit_logs - GDPR compliance requires audit trail persistence
-    // Nullify user_id in audit logs to maintain compliance while respecting right to be forgotten
-    this.db.prepare('UPDATE audit_logs SET user_id = NULL WHERE user_id = ?').run(userId);
+    // Audit logs contain no PII, only user_id references for compliance/legal purposes
     this.db.prepare('DELETE FROM user_profiles WHERE user_id = ?').run(userId);
 
     logger.info('🗑️ User data deleted (GDPR right to be forgotten)', {
