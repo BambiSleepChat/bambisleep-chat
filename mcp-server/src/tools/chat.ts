@@ -1,11 +1,13 @@
 /**
- * 🌸 Chat Tools - MCP Tool Definitions
- * Handles chat message processing with LLM integration
+ * 🌸 Chat Tools - MCP Tool Definitions (Phase 4 Memory Integration)
+ * Handles chat message processing with LLM integration and conversation persistence
  */
 
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import { z } from 'zod';
+import { memoryService } from './memory.js';
+import { logger } from '../utils/logger.js';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -24,8 +26,9 @@ interface MCPTool {
 
 const ChatMessageSchema = z.object({
   message: z.string().describe('User message to send to Bambi'),
-  userId: z.string().optional().describe('User identifier for session tracking'),
-  conversationHistory: z.array(z.any()).optional().describe('Previous conversation context'),
+  userId: z.string().describe('User identifier for session tracking and memory'),
+  sessionId: z.string().optional().describe('Optional session ID (auto-created if not provided)'),
+  useMemory: z.boolean().default(true).describe('Whether to use conversation memory'),
   tier: z.enum(['free', 'premium']).default('free').describe('User subscription tier'),
 });
 
@@ -70,7 +73,56 @@ Remember: A disappointed user is better than a harmed user. Safety always wins.`
  * Chat send message tool
  */
 async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): Promise<string> {
-  const { message, tier, conversationHistory = [] } = args;
+  const { message, userId, sessionId, useMemory, tier } = args;
+
+  // Ensure user profile exists
+  await memoryService.createOrUpdateUser(userId);
+
+  // Get or create session
+  const session = sessionId 
+    ? { session_id: sessionId, user_id: userId, start_time: Date.now(), last_activity: Date.now(), message_count: 0, status: 'active' as const }
+    : memoryService.getOrCreateSession(userId);
+
+  // Load conversation history if memory enabled
+  let conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+  let contextPrefix = '';
+
+  if (useMemory) {
+    const profile = memoryService.getUserProfile(userId);
+    const recentMessages = memoryService.getConversationHistory(session.session_id, 20);
+
+    if (recentMessages.length > 0) {
+      conversationHistory = recentMessages.map(m => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      }));
+    }
+
+    // Add personalization context
+    if (profile) {
+      const contextParts: string[] = [];
+      if (profile.nickname) {
+        contextParts.push(`User's nickname: ${profile.nickname}`);
+      }
+      if (profile.conversation_style) {
+        contextParts.push(`Preferred style: ${profile.conversation_style}`);
+      }
+      if (profile.topics && typeof profile.topics === 'string') {
+        try {
+          const topicsArray = JSON.parse(profile.topics);
+          if (Array.isArray(topicsArray) && topicsArray.length > 0) {
+            contextParts.push(`Interests: ${topicsArray.join(', ')}`);
+          }
+        } catch {
+          // Ignore invalid JSON
+        }
+      }
+
+      if (contextParts.length > 0) {
+        contextPrefix = `[Context: ${contextParts.join(' | ')}]\n\n`;
+      }
+    }
+  }
 
   // Select model based on tier
   const model = tier === 'premium' 
@@ -78,6 +130,9 @@ async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): 
     : (process.env.FALLBACK_MODEL || 'gpt-4o-mini');
 
   const systemPrompt = getBambiSystemPrompt();
+
+  let responseText: string;
+  let tokensUsed = 0;
 
   try {
     if (model.startsWith('claude')) {
@@ -87,19 +142,20 @@ async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): 
         max_tokens: 1024,
         system: systemPrompt,
         messages: [
-          ...conversationHistory.map((msg: any) => ({
+          ...conversationHistory.map((msg) => ({
             role: msg.role,
             content: msg.content,
           })),
           {
             role: 'user',
-            content: message,
+            content: contextPrefix + message,
           },
         ],
       });
 
       const content = response.content[0];
-      return content.type === 'text' ? content.text : 'Unable to generate response';
+      responseText = content.type === 'text' ? content.text : 'Unable to generate response';
+      tokensUsed = response.usage.input_tokens + response.usage.output_tokens;
     } else {
       // Use OpenAI
       const response = await openai.chat.completions.create({
@@ -107,18 +163,38 @@ async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): 
         max_tokens: 1024,
         messages: [
           { role: 'system', content: systemPrompt },
-          ...conversationHistory.map((msg: any) => ({
+          ...conversationHistory.map((msg) => ({
             role: msg.role,
             content: msg.content,
           })),
-          { role: 'user', content: message },
+          { role: 'user', content: contextPrefix + message },
         ],
       });
 
-      return response.choices[0]?.message?.content || 'Unable to generate response';
+      responseText = response.choices[0]?.message?.content || 'Unable to generate response';
+      tokensUsed = response.usage?.total_tokens || 0;
     }
+
+    // Store messages in database if memory enabled
+    if (useMemory) {
+      await memoryService.storeMessage(session.session_id, 'user', message, {
+        tokens: Math.floor(tokensUsed * 0.4), // Approximate input tokens
+      });
+
+      await memoryService.storeMessage(session.session_id, 'assistant', responseText, {
+        tokens: Math.floor(tokensUsed * 0.6), // Approximate output tokens
+      });
+
+      logger.info('💎 Conversation turn stored', { 
+        userId, 
+        sessionId: session.session_id, 
+        tokens: tokensUsed 
+      });
+    }
+
+    return responseText;
   } catch (error) {
-    console.error('LLM API error:', error);
+    logger.error('LLM API error', { error, model });
     throw new Error('Failed to get response from AI model');
   }
 }
@@ -126,7 +202,7 @@ async function executeChatSendMessage(args: z.infer<typeof ChatMessageSchema>): 
 export const chatTools: MCPTool[] = [
   {
     name: 'chat_send_message',
-    description: 'Send a message to Bambi and get a response. Applies safety filtering automatically.',
+    description: 'Send a message to Bambi and get a response. Automatically saves conversation history if memory enabled.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -136,26 +212,25 @@ export const chatTools: MCPTool[] = [
         },
         userId: {
           type: 'string',
-          description: 'User identifier for session tracking',
+          description: 'User identifier for session tracking and memory (required)',
         },
-        conversationHistory: {
-          type: 'array',
-          description: 'Previous conversation messages for context',
-          items: {
-            type: 'object',
-            properties: {
-              role: { type: 'string', enum: ['user', 'assistant'] },
-              content: { type: 'string' },
-            },
-          },
+        sessionId: {
+          type: 'string',
+          description: 'Optional session ID (auto-created if not provided)',
+        },
+        useMemory: {
+          type: 'boolean',
+          description: 'Whether to use conversation memory (default: true)',
+          default: true,
         },
         tier: {
           type: 'string',
           enum: ['free', 'premium'],
           description: 'User subscription tier (determines model quality)',
+          default: 'free',
         },
       },
-      required: ['message'],
+      required: ['message', 'userId'],
     },
     execute: executeChatSendMessage,
   },
