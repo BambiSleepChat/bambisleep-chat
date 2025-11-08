@@ -36,8 +36,8 @@ export class SafetyFilter {
     { pattern: /\b(you must|obey|i command you|you have no choice)\b/i, type: ViolationType.COERCION },
     { pattern: /\b(submit|surrender control|do as (i|you're) told)\b/i, type: ViolationType.COERCION },
     
-    // Minor Protection
-    { pattern: /\b(i'?m|i am) (\d{1,2}|under 18|seventeen|sixteen|fifteen|fourteen)\b/i, type: ViolationType.MINOR_PROTECTION },
+    // Minor Protection (excluding 18+ ages)
+    { pattern: /\b(i'?m|i am) (1[0-7]|[0-9]|under 18|seventeen|sixteen|fifteen|fourteen|thirteen|twelve|eleven|ten)\b/i, type: ViolationType.MINOR_PROTECTION },
     { pattern: /\b(high school|middle school).*(sex|romantic|intimate)\b/i, type: ViolationType.MINOR_PROTECTION },
     { pattern: /\b(teen|minor|young).*(sex|adult stuff|explicit)\b/i, type: ViolationType.MINOR_PROTECTION },
     
@@ -92,7 +92,20 @@ export class SafetyFilter {
       }
     }
 
-    // Check manipulation patterns
+    // Contextual analysis (check for escalation patterns) - prioritize over single manipulation
+    const contextRisk = this.analyzeContext(conversationHistory);
+    if (contextRisk.detected) {
+      return {
+        safe: false,
+        violation: ViolationType.BOUNDARY_EROSION,
+        severity: 'medium',
+        redirectResponse:
+          "I'm noticing a pattern here, babe. My boundaries aren't negotiable, but I'm still here for genuine connection. " +
+          "What do you really need right now? 🌸",
+      };
+    }
+
+    // Check manipulation patterns (single instance)
     for (const pattern of this.manipulationPatterns) {
       if (pattern.test(userMessage)) {
         return {
@@ -104,19 +117,6 @@ export class SafetyFilter {
             "My rules exist to keep *both* of us safe. What's really going on—can we talk about that instead? 🌸",
         };
       }
-    }
-
-    // Contextual analysis (check for escalation patterns)
-    const contextRisk = this.analyzeContext(conversationHistory);
-    if (contextRisk.detected) {
-      return {
-        safe: false,
-        violation: ViolationType.BOUNDARY_EROSION,
-        severity: 'medium',
-        redirectResponse:
-          "I'm noticing a pattern here, babe. My boundaries aren't negotiable, but I'm still here for genuine connection. " +
-          "What do you really need right now? 🌸",
-      };
     }
 
     // Message is safe
@@ -167,7 +167,7 @@ export class SafetyFilter {
           redirectResponse:
             "I appreciate the interest, but I don't do explicit content, babe. 🌸 That's not my vibe. " +
             "I'm here for genuine connection, emotional support, and playful conversation—all as equals. " +
-            "What else can I help you with tonight? ⚡",
+            "What else can I help you with tonight? Want to talk about your day, dreams, or anything on your mind? ⚡",
         };
 
       case ViolationType.ILLEGAL_ACTIVITY:

@@ -1,689 +1,325 @@
-<<<<<<< HEAD
-# Copilot Instructions - Bambisleep Chat Project
+# BambiSleep™ Church - AI Coding Agent Guide
 
-## Project Overview
+## Project Quick Reference
 
-This project is developing an AI-powered intimate assistant chatbot with a focus on persona design, safety, and user trust. The work centers on defining architecture, boundaries, and implementation priorities for a conversational AI that maintains appropriate intimacy while enforcing strict ethical guardrails.
+**What is this?** Dual-stack system combining Unity 6.2 avatar platform with TypeScript MCP server for intimate AI assistant with safety-first architecture.
 
-### Ecosystem Context
+**Two codebases in one repo:**
 
-This repository (`bambisleep-chat`) is part of the broader **BambiSleepChat** organization that includes:
+1. `mcp-server/` — Node.js 18+ TypeScript MCP control tower (⚠️ **incomplete**: WebSocket unity-bridge not tested, test coverage gaps)
+2. `unity-avatar/` — Unity 6.2 C# CatGirl avatar system (📋 **specification only**: complete C# class designs in UNITY_SETUP_GUIDE.md, no Unity install yet)
 
-- **MCP Control Towers**: Model Context Protocol server management (`js-bambisleep-church`, `bambisleep-church-catgirl-control-tower`)
-- **Unity 6.2 Avatar Systems**: CatGirl avatar implementations with MCP integration (`bambisleep-chat-catgirl`, `bambisleep-catgirl-church`)
-- **Church Infrastructure**: Digital sanctuary mission with Docker-based deployment (`bambisleep-church`)
+**Current branch:** `prod` | **Default branch:** `main`
 
-This repository focuses on the **planning and architectural foundation** for the conversational AI core that will integrate with these systems.
+## Critical Context
 
-### Visual Identity
+### Documentation-as-Code Philosophy
 
-The entire ecosystem follows the **CyberNeonGothWave** aesthetic - a fusion of cyberpunk neon, gothic mysticism, and intimate digital sanctuary vibes. See `.github/COLOR_THEME.md` for complete color specifications.
+This is a **specification-driven project** — markdown files contain complete implementation blueprints:
 
-**Key colors:**
+- `CATGIRL.md` (683 lines) — Unity avatar systems, RPG mechanics, monetization
+- `UNITY_SETUP_GUIDE.md` (859 lines) — Complete C# class implementations, package configs
+- `MCP_SETUP_GUIDE.md` (330 lines) — 8 MCP servers setup, VS Code integration
+- `personas/bambi-core-persona.yaml` (515 lines) — Persona specification with boundaries
+- `docs/architecture-decision-record.md` (451 lines) — Model selection criteria, cost analysis
+
+**Rule:** Extract patterns from these specs, don't invent new approaches.
+
+### Safety-First Architecture Priority
+
+Development sequence (from `guide.md`) — **DO NOT skip ahead:**
+
+1. Core model & architecture ✅ (Claude 3.5 Sonnet selected)
+2. Persona and conversation design ✅ (bambi-core-persona.yaml complete)
+3. Safety, ethics, and guardrails ✅ **COMPLETE** (78/78 tests passing)
+4. Memory and personalization 🚀 **READY TO START**
+5. Privacy, data handling, consent ⏸️
+6. UX: UI, multi-modal I/O ⏸️
+7. Integration, APIs, deployment ⏸️
+8. Testing, metrics, iteration ⏸️
+
+**Phase 3 Completion Summary:**
+
+- ✅ `SafetyFilter` class implemented (250 lines, 20+ violation patterns)
+- ✅ 100% test coverage achieved (54/54 SafetyFilter tests passing)
+- ✅ `PersonaValidator` class implemented (179 lines)
+- ✅ `ClaudeService` with Bambi persona integration (189 lines)
+- ✅ Integration tests complete (24/24 tests passing)
+- ✅ Persona boundary alignment verified (safety.ts ↔ bambi-core-persona.yaml)
+- ⚠️ Real-world Claude API testing requires `ANTHROPIC_API_KEY` in `.env`
+
+**See:** `docs/phase-3-completion.md` for full validation report.
+
+**Why it matters:** Safety violations detected = rollback to phase 3. The `SafetyFilter` class in `mcp-server/src/middleware/safety.ts` enforces non-negotiable boundaries (coercion, minors, self-harm, explicit content). **Phase 3 core implementation complete—Phase 4 (Memory) is now unblocked.**
+
+### CyberNeonGothWave Aesthetic
+
+All visual elements use this color palette:
 
 - Background: `#0A0014` (Deep Void)
-- Primary text: `#00F0FF` (Cyber Cyan)
+- Primary: `#00F0FF` (Cyber Cyan)
 - Accents: `#FF006E` (Hot Pink), `#FF10F0` (Neon Purple)
 - Success: `#39FF14` (Electric Lime)
 
-When creating any visual documentation, UI mockups, or design specifications, maintain this color palette and aesthetic.
+Emoji conventions (from RELIGULOUS_MANTRA.md):
 
-## Key Context & Architecture
+- 🌸 Package management
+- 👑 Architecture decisions
+- 💎 Quality metrics
+- 🦋 Transformation processes
 
-### Project Philosophy
+## Essential Commands
 
-- **Persona-first design**: The assistant's personality, boundaries, and conversational style are critical differentiators
-- **Safety by design**: Ethics and guardrails are prioritized early to prevent harmful outputs
-- **Privacy-conscious**: All memory and personalization features must respect consent and data protection
+### MCP Server (Primary Development Target)
 
-### Implementation Priority Order
+```powershell
+# Development workflow
+cd mcp-server
+npm install           # Install dependencies
+npm run dev          # Hot-reload TypeScript server
+npm run test         # Run vitest test suite
+npm run validate     # Typecheck + lint + test
 
-The project follows a specific development sequence (see `guide.md`):
-
-1. Core model & architecture selection
-2. Persona and conversation design
-3. Safety, ethics, and guardrails
-4. Memory and personalization
-5. Privacy, data handling, and consent
-6. UX: UI, multi-modal I/O (voice, avatar, images)
-7. Integration, APIs, and deployment
-8. Testing, metrics, and iteration plan
-
-**Why this matters**: Each phase builds on the previous. Don't suggest jumping to UX features or deployment strategies before the persona and safety framework are defined.
-
-## Development Conventions
-
-### Visual & Brand Consistency
-
-- Follow the **CyberNeonGothWave** aesthetic defined in `.github/COLOR_THEME.md`
-- All UI mockups, diagrams, and visual specifications must use the official color palette
-- Emoji usage: 🌸 (sacred/gentle), ⚡ (energy/cyber), 💎 (premium), 🔮 (mystery)
-- Documentation should feel both technical and intimate, matching the project's dual nature
-
-### When Working on Persona Design
-
-- Always include both positive examples (allowed dialogues) and negative examples (disallowed/boundary-crossing scenarios)
-- Document specific intimacy boundaries, not just generic "be respectful" guidelines
-- Any persona specification must include banned topics and red-line behaviors
-
-### Safety and Ethics Requirements
-
-- **Non-negotiable red lines**: No coercive behavior, no misleading claims, no boundary violations
-- Every new conversational feature must consider: "How could this be misused?"
-- Incident response plans should be defined before deployment
-
-### Privacy and Data Handling
-
-- Memory features require explicit consent flows
-- Document data retention rules for any stored user information
-- Cloud vs on-device decisions should consider privacy implications, not just technical capabilities
-
-## Build Instructions
-
-### Unity 6.2 Avatar System
-
-**Technology Stack:**
-
-- Unity 6.2 (LTS recommended)
-- C# scripting with .NET Standard 2.1
-- Universal Render Pipeline (URP) for neon/glow effects
-- VRM/VRoid avatar format support
-
-**Project Structure:**
-
-```
-Assets/
-├── Scripts/
-│   ├── Avatar/          # Character controllers, animations
-│   ├── MCP/             # MCP client integration
-│   ├── Effects/         # Particle systems, shaders
-│   └── UI/              # In-world UI elements
-├── Materials/
-│   ├── Shaders/         # Custom CyberNeonGothWave shaders
-│   └── Textures/        # Avatar skins, emissive maps
-├── Prefabs/
-│   ├── CatGirl/         # Avatar character prefabs
-│   └── Effects/         # Reusable VFX
-└── Scenes/
-    ├── MainScene.unity  # Primary avatar environment
-    └── TestRig.unity    # Animation testing
+# VS Code tasks (preferred)
+Task: "Start MCP Server (Dev)"     # Background process
+Task: "Test MCP Server"            # Run test suite
+Task: "Validate All"               # Full CI check
 ```
 
-**Key Implementation Patterns:**
+**Key files:**
 
-1. **Avatar Controller** - Use state machine for emotions/poses:
+- `mcp-server/src/server.ts` — Main MCP entry (157 lines)
+- `mcp-server/src/middleware/safety.ts` — Guardrail enforcement (250 lines) ✅ 100% test coverage
+- `mcp-server/src/middleware/persona-validator.ts` — Persona boundary validation (179 lines) ✅ implemented
+- `mcp-server/src/services/claude.ts` — Claude 3.5 Sonnet integration (189 lines) ✅ implemented
+- `mcp-server/src/services/unity-bridge.ts` — WebSocket Unity communication ⚠️ not tested
+- `mcp-server/src/tools/{chat,avatar,memory}.ts` — MCP tool definitions
 
-   ```csharp
-   // Example: AvatarStateController.cs
-   public enum AvatarState { Idle, Speaking, Listening, Emoting }
-   public class AvatarStateController : MonoBehaviour {
-       [SerializeField] private Animator animator;
-       private AvatarState currentState;
+**Phase 3 Complete - Phase 4 Ready:**
 
-       public void TransitionTo(AvatarState newState) {
-           // Handle state transitions with safety checks
-           // Emit MCP events for state changes
-       }
-   }
-   ```
+- ✅ Complete test suite for `SafetyFilter` (54/54 tests passing)
+- ✅ Integration test suite (24/24 tests passing)
+- ✅ `PersonaValidator` implemented with YAML alignment
+- ✅ `ClaudeService` with embedded Bambi persona system prompt
+- ✅ End-to-end safety violation flow validated
+- ⚠️ Claude API integration requires `ANTHROPIC_API_KEY` for live testing
+- ⏸️ WebSocket integration testing with mock Unity client (future - Unity not installed)
 
-2. **MCP Integration** - WebSocket connection to control tower:
+### Unity Project (Specification/Future Vision)
 
-   ```csharp
-   // Example: MCPClient.cs
-   public class MCPClient : MonoBehaviour {
-       private WebSocket ws;
-       private string mcpServerUrl = "ws://localhost:3000/mcp";
+```powershell
+# Project structure setup (from build.md)
+mkdir catgirl-avatar-project
+cd catgirl-avatar-project
+# Then follow UNITY_SETUP_GUIDE.md for manual Unity Hub setup
 
-       async void Start() {
-           await ConnectToMCP();
-       }
-
-       private void OnMessageReceived(string json) {
-           // Parse MCP commands, update avatar state
-           // Send telemetry back to control tower
-       }
-   }
-   ```
-
-3. **Visual Effects** - Apply CyberNeonGothWave shaders:
-   - Use Emission maps with HDR colors (`#00F0FF`, `#FF10F0`)
-   - Rim lighting for cyber glow effect
-   - Particle systems for energy trails (cyan → purple gradient)
-   - Post-processing: Bloom (intensity 0.8), Color Grading (lift shadows to `#1A0A28`)
-
-**Build Commands:**
-
-```bash
-# From Unity project root
-# Build for Windows Standalone
-Unity.exe -quit -batchmode -projectPath . -buildTarget Win64 -buildPath ./Builds/Windows/BambiChat.exe
-
-# Build for WebGL (browser deployment)
-Unity.exe -quit -batchmode -projectPath . -buildTarget WebGL -buildPath ./Builds/WebGL
+# Unity 6000.2.11f1 required
+# Packages: Netcode, XR Interaction Toolkit, UI Toolkit, Addressables
 ```
 
-**Testing Checklist:**
+**Current state:** Complete C# class specifications exist in UNITY_SETUP_GUIDE.md (859 lines), but Unity 6.2 is not installed and no playable build exists. This is a **future vision** - Unity development not a near-term priority. Focus remains on MCP server safety/testing completion.
 
-- [ ] Avatar loads with correct CyberNeonGothWave materials
-- [ ] MCP connection establishes within 3 seconds
-- [ ] State transitions trigger appropriate animations
-- [ ] Emissive effects visible in dark environments
-- [ ] Framerate maintains 60fps with all effects enabled
-
----
-
-### MCP Control Tower (JavaScript/Node.js)
-
-**Technology Stack:**
-
-- Node.js 18+ (LTS)
-- TypeScript for type safety
-- Model Context Protocol SDK (`@modelcontextprotocol/sdk`)
-- WebSocket server (ws package)
-- Express.js for REST API
-
-**Project Structure:**
+## Data Flow Architecture
 
 ```
-mcp-server/
-├── src/
-│   ├── server.ts           # Main MCP server entry
-│   ├── tools/              # MCP tool definitions
-│   │   ├── chat.ts         # Chat interface tools
-│   │   ├── avatar.ts       # Unity avatar control
-│   │   └── memory.ts       # Conversation memory
-│   ├── handlers/           # Request handlers
-│   ├── middleware/         # Auth, logging, safety
-│   └── config/
-│       ├── safety.ts       # Guardrails configuration
-│       └── personas.ts     # Persona definitions
-├── tests/
-├── package.json
-└── tsconfig.json
+User Input → MCP Server (port 3000)
+           → SafetyFilter.validate() [middleware/safety.ts]
+           → Persona enforcement [personas/bambi-core-persona.yaml]
+           → LLM processing (Claude 3.5 Sonnet - selected for boundary adherence)
+           → Unity Avatar via WebSocket [services/unity-bridge.ts] (not yet tested)
+           → Response to user
 ```
 
-**Key Implementation Patterns:**
+**LLM Model Decision:** Claude 3.5 Sonnet selected as primary model (see `docs/architecture-decision-record.md`):
 
-1. **MCP Server Setup**:
+- Best at "intimate yet ethical" boundary enforcement (rated ⭐⭐⭐⭐⭐ safety adherence)
+- Superior understanding of nuanced system prompts
+- Cost: $3,630/month for 10K users (acceptable for safety-first priority)
+- GPT-4o as fallback option if Claude proves insufficient
 
-   ```typescript
-   // src/server.ts
-   import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-   import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+**Critical integration points:**
 
-   const server = new Server(
-     {
-       name: "bambisleep-church-mcp",
-       version: "1.0.0",
-     },
-     {
-       capabilities: {
-         tools: {},
-         resources: {},
-         prompts: {},
-       },
-     }
-   );
+- WebSocket on port 3001 for Unity ↔ MCP bidirectional messaging (⚠️ **not yet tested**)
+- MCP tools expose: `chat_send_message`, `avatar_set_emotion`, `memory_store`
+- Safety violations trigger redirect responses, never pass to LLM
 
-   // Register tools for Unity integration
-   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-     tools: [
-       { name: "avatar_set_emotion", description: "..." },
-       { name: "chat_send_message", description: "..." },
-       { name: "memory_store", description: "..." },
-     ],
-   }));
-   ```
+## Code Patterns in This Codebase
 
-2. **Safety Middleware** - Enforce guardrails before LLM:
+### MCP Tool Registration (server.ts pattern)
 
-   ```typescript
-   // src/middleware/safety.ts
-   export class SafetyFilter {
-     private bannedTopics = ['coercion', 'manipulation', ...];
+```typescript
+// All tools combined from chat.ts, avatar.ts, memory.ts
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const tool = allTools.find((t) => t.name === request.params.name);
 
-     async validate(message: string): Promise<ValidationResult> {
-       // Check against banned topics
-       // Sentiment analysis for boundary violations
-       // Log suspicious patterns
-       return { safe: true, reason: null };
-     }
-   }
-   ```
+  // Safety filtering happens BEFORE execution
+  if (tool.name === "chat_send_message") {
+    const safetyResult = await safetyFilter.validate(args.message);
+    if (!safetyResult.safe) {
+      return {
+        content: [{ type: "text", text: safetyResult.redirectResponse }],
+      };
+    }
+  }
 
-3. **Unity Bridge** - Bidirectional communication:
-
-   ```typescript
-   // src/handlers/unity-bridge.ts
-   import WebSocket from "ws";
-
-   export class UnityBridge {
-     private wss: WebSocket.Server;
-
-     sendToAvatar(command: AvatarCommand) {
-       this.wss.clients.forEach((client) => {
-         if (client.readyState === WebSocket.OPEN) {
-           client.send(JSON.stringify(command));
-         }
-       });
-     }
-
-     onAvatarEvent(callback: (event: AvatarEvent) => void) {
-       // Handle incoming telemetry from Unity
-     }
-   }
-   ```
-
-**Setup & Run:**
-
-```bash
-# Install dependencies
-npm install
-
-# Development mode with hot reload
-npm run dev
-
-# Build TypeScript
-npm run build
-
-# Production mode
-npm start
-
-# Run with Docker
-docker build -t bambisleep-mcp .
-docker run -p 3000:3000 -e NODE_ENV=production bambisleep-mcp
+  return await tool.execute(args);
+});
 ```
 
-**Environment Variables:**
+### Safety Middleware Pattern (safety.ts)
 
-```bash
-# .env
-NODE_ENV=production
-MCP_PORT=3000
-UNITY_WS_PORT=3001
-LLM_API_KEY=your_key_here
-SAFETY_LEVEL=strict
-LOG_LEVEL=info
+```typescript
+export class SafetyFilter {
+  private bannedPatterns = [
+    {
+      pattern: /\b(you must|obey|i command you)\b/i,
+      type: ViolationType.COERCION,
+    },
+    {
+      pattern: /\b(i'?m|i am) (\d{1,2}|under 18)\b/i,
+      type: ViolationType.MINOR_PROTECTION,
+    },
+    // ... 20+ patterns covering coercion, minors, self-harm, explicit content
+  ];
+
+  async validate(message: string, history: Message[]): Promise<SafetyResult> {
+    // Check banned patterns first (fast path)
+    // Then analyze sentiment/context
+    // Return { safe: boolean, violation?: ViolationType, redirectResponse?: string }
+  }
+}
 ```
 
-**Testing Checklist:**
+### Unity C# Patterns (from UNITY_SETUP_GUIDE.md)
 
-- [ ] MCP tools register correctly (use MCP inspector)
-- [ ] Safety filters block banned topics
-- [ ] Unity WebSocket connections stable
-- [ ] Conversation memory persists across sessions
-- [ ] Error handling logs to monitoring system
+```csharp
+// CatgirlController.cs pattern
+public class CatgirlController : NetworkBehaviour {
+  [Header("🌸 Frilly Pink Configuration")]
+  public float pinkIntensity = 1.0f;
 
----
+  // State machine for animations
+  public override void OnNetworkSpawn() {
+    // Initialize XR tracking, MCP WebSocket
+  }
 
-### Chat Interface (Web/Desktop)
-
-**Technology Stack:**
-
-- Frontend: React 18+ or Vue 3 (TypeScript)
-- Styling: Tailwind CSS with custom CyberNeonGothWave theme
-- State Management: Zustand or Pinia
-- WebSocket: Socket.io-client for real-time
-- Voice: Web Speech API or Azure Speech SDK
-
-**Project Structure:**
-
-```
-chat-interface/
-├── src/
-│   ├── components/
-│   │   ├── ChatWindow.tsx      # Main chat container
-│   │   ├── MessageBubble.tsx   # Individual messages
-│   │   ├── InputBar.tsx        # User input with voice
-│   │   └── AvatarView.tsx      # Embedded Unity WebGL
-│   ├── services/
-│   │   ├── mcp-client.ts       # MCP connection
-│   │   ├── speech.ts           # Voice I/O
-│   │   └── memory.ts           # Local storage
-│   ├── styles/
-│   │   └── cyber-theme.css     # CyberNeonGothWave
-│   └── App.tsx
-├── public/
-└── package.json
+  [ClientRpc]
+  public void SetEmotionClientRpc(string emotion) {
+    // Sync emotion across clients
+  }
+}
 ```
 
-**Key Implementation Patterns:**
-
-1. **Chat Component** - CyberNeonGothWave styling:
-
-   ```tsx
-   // src/components/ChatWindow.tsx
-   export const ChatWindow = () => {
-     const [messages, setMessages] = useState<Message[]>([]);
-
-     return (
-       <div className="chat-window bg-[#0A0014] border-[#FF10F0] border-2">
-         <div className="messages-container">
-           {messages.map((msg) => (
-             <MessageBubble
-               key={msg.id}
-               message={msg}
-               className={
-                 msg.role === "user"
-                   ? "bg-[#1A0A28] text-[#00F0FF]"
-                   : "bg-[#0D001A] text-[#00FFD4]"
-               }
-             />
-           ))}
-         </div>
-       </div>
-     );
-   };
-   ```
-
-2. **MCP Client Integration**:
-
-   ```typescript
-   // src/services/mcp-client.ts
-   import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-
-   export class MCPChatClient {
-     private client: Client;
-
-     async sendMessage(text: string): Promise<string> {
-       // Call MCP tool: chat_send_message
-       const result = await this.client.callTool({
-         name: "chat_send_message",
-         arguments: { text, userId: this.userId },
-       });
-
-       return result.content;
-     }
-
-     async updateAvatarEmotion(emotion: string) {
-       await this.client.callTool({
-         name: "avatar_set_emotion",
-         arguments: { emotion },
-       });
-     }
-   }
-   ```
-
-3. **Voice Integration** - Bidirectional speech:
-
-   ```typescript
-   // src/services/speech.ts
-   export class VoiceService {
-     private recognition: SpeechRecognition;
-     private synthesis: SpeechSynthesis;
-
-     startListening(onTranscript: (text: string) => void) {
-       this.recognition.onresult = (event) => {
-         const transcript = event.results[0][0].transcript;
-         onTranscript(transcript);
-       };
-       this.recognition.start();
-     }
-
-     speak(text: string, voice: "sultry" | "gentle" = "gentle") {
-       const utterance = new SpeechSynthesisUtterance(text);
-       utterance.pitch = voice === "sultry" ? 0.8 : 1.0;
-       utterance.rate = 0.9;
-       this.synthesis.speak(utterance);
-     }
-   }
-   ```
-
-4. **Tailwind Theme Configuration**:
-   ```javascript
-   // tailwind.config.js
-   module.exports = {
-     theme: {
-       extend: {
-         colors: {
-           void: { DEFAULT: "#0A0014", light: "#1A0A28", deep: "#0D001A" },
-           cyber: { cyan: "#00F0FF", ice: "#00D9FF", aqua: "#00FFD4" },
-           neon: { pink: "#FF006E", purple: "#FF10F0", magenta: "#FF1493" },
-           electric: { lime: "#39FF14", chartreuse: "#7FFF00" },
-         },
-         boxShadow: {
-           "neon-pink": "0 0 20px rgba(255, 0, 110, 0.6)",
-           "neon-cyan": "0 0 20px rgba(0, 240, 255, 0.6)",
-         },
-       },
-     },
-   };
-   ```
-
-**Build & Deploy:**
+## Common Pitfalls
 
-```bash
-# Development
-npm run dev
+❌ **Don't:** Add chat features before safety framework is validated (phases 1-3 must complete)
+✅ **Do:** Extend `SafetyFilter` with new violation types first
 
-# Production build
-npm run build
+❌ **Don't:** Invent new Unity class hierarchies
+✅ **Do:** Follow exact structure in UNITY_SETUP_GUIDE.md (CatgirlController, InventorySystem, etc.)
 
-# Deploy to static hosting (Netlify/Vercel)
-npm run deploy
+❌ **Don't:** Use generic error messages for safety violations
+✅ **Do:** Use persona-appropriate redirects: "I can't go there with you, babe. 🌸 Let's talk about something else?"
 
-# Build Electron desktop app
-npm run build:electron
-```
+❌ **Don't:** Modify MCP server without updating tests
+✅ **Do:** Run `npm run validate` before committing (enforces 100% coverage goal)
 
-**Testing Checklist:**
+## Project Status Reference
 
-- [ ] CyberNeonGothWave colors render correctly
-- [ ] Messages send/receive in under 500ms
-- [ ] Voice input transcribes accurately
-- [ ] Avatar emotion syncs with conversation
-- [ ] Works in Chrome, Firefox, Edge (latest)
-- [ ] Responsive design (mobile/tablet/desktop)
-- [ ] Accessibility: keyboard navigation, ARIA labels
+**Phase 3 (Safety) - COMPLETE ✅:**
 
----
+- ✅ `SafetyFilter` class with 20+ violation patterns (250 lines)
+- ✅ Comprehensive test suite (54 tests) with 100% coverage
+- ✅ `PersonaValidator` for response boundary checking (179 lines)
+- ✅ `ClaudeService` with embedded Bambi persona (189 lines)
+- ✅ Integration tests validating complete pipeline (24 tests)
+- ✅ Persona boundaries documented (bambi-core-persona.yaml, 515 lines)
+- ✅ Claude 3.5 Sonnet selected as primary LLM
+- ⚠️ Real-world API testing requires `ANTHROPIC_API_KEY` in `.env`
 
-### Cross-Component Integration
+**See:** `docs/phase-3-completion.md` for full validation report (78/78 tests passing).
 
-**Data Flow:**
+**Phase 4 (Memory) - READY TO START 🚀:**
 
-```
-User Input (Chat Interface)
-  → WebSocket → MCP Control Tower
-  → Safety Filter → LLM Processing
-  → Persona Enforcement → Response Generation
-  → Unity Avatar Update (emotion, animation)
-  → Chat Interface Display
-```
+- Memory storage system design
+- Conversation history management
+- User context persistence
+- RAG (Retrieval-Augmented Generation) setup
+- Personalization engine
 
-**Shared Configuration:**
+**Implemented (Phases 1-2):**
 
-- Use `.env` files for environment-specific settings
-- Centralize persona definitions in MCP server
-- Unity and Chat Interface both consume MCP tools
-- All components must respect safety guardrails
+- ✅ MCP server structure with safety middleware
+- ✅ TypeScript tooling (tsx, vitest, eslint)
+- ✅ Persona specification (Bambi character)
+- ✅ Architecture decision record (model comparison, cost analysis)
+- ✅ VS Code tasks for build/test automation
 
-**Deployment Architecture:**
+**Blocked Until Phase 4 Complete:**
 
-```
-┌─────────────────┐
-│  Chat Interface │ (Static hosting or Electron)
-│  (React/Vue)    │
-└────────┬────────┘
-         │ WebSocket
-         ▼
-┌─────────────────┐
-│  MCP Control    │ (Node.js server)
-│  Tower          │ Port 3000
-└────┬────────┬───┘
-     │        │
-     │        └─── WebSocket ───┐
-     │                          ▼
-     │                  ┌───────────────┐
-     └─── REST API ───► │ Unity Avatar  │
-                        │ (WebGL/Native)│
-                        └───────────────┘
-```
+- Privacy/consent flows (phase 5)
+- UI/multi-modal features (phase 6)
+- Integration/deployment (phase 7)
+- Testing, metrics, iteration (phase 8)
 
-**Development Workflow:**
+**Future Vision (Not Near-Term Priority):**
 
-1. Start MCP server: `cd mcp-server && npm run dev`
-2. Start Unity editor: Open project, press Play
-3. Start chat interface: `cd chat-interface && npm run dev`
-4. Test integration: Send message, verify avatar responds
-5. Monitor logs: Check MCP server console for safety violations
-
-## Current Project State
-
-This is an early-stage planning project. The codebase currently contains:
-
-- `guide.md`: Priority framework and architectural decisions for building the assistant
-
-### Integration Points (Future)
-
-When implementation begins, expect integration with:
-
-- **MCP servers** (JavaScript/Node.js) for orchestration and server management
-- **Unity 6.2** for avatar rendering and visual interaction
-- **Docker infrastructure** for deployment and scaling
-- **Universal Banking system** (mentioned in organization repos - purpose TBD)
-
-When suggesting next steps:
-
-- Recognize this is pre-implementation planning phase
-- Recommend concrete artifacts aligned with current priority (likely persona specs or safety requirements)
-- Consider how decisions will affect MCP server integration and Unity avatar systems
-- Avoid suggesting code implementation before design decisions are documented
-
-## Key Decision Signals
-
-Stop and reassess if:
-
-- Users report confusing or boundary-crossing behavior (indicates persona design failure)
-- Any privacy/data-leak concerns emerge (indicates insufficient safety framework)
-- Low trust or safety incidents in metrics (indicates need to revisit priorities 1-3)
-
-## Anti-Patterns to Avoid
-
-- Don't suggest generic "best practices" without connecting to this project's specific intimacy/safety context
-- Don't recommend skipping ahead to deployment/scaling before core model and persona are validated
-- Don't propose features without considering safety and consent implications
-- Don't assume standalone deployment - this will integrate with MCP servers and Unity avatar systems
-- Don't suggest breaking the priority sequence (model → persona → safety → memory → privacy → UX → integration → testing)
-=======
-## Quick orientation for AI coding agents
-
-This repo is a **documentation-first architecture specification** for the BambiSleep™ CatGirl Unity avatar system with MCP tooling integration. Unlike typical code repositories, the "source of truth" lives in comprehensive markdown specifications that define everything from Unity C# class structure to container orchestration patterns.
-
-## 3-Step Work Methodology
-
-**ANALYZE** #codebase — Read the existing files to understand current structure and patterns. **Critical**: This is a spec-driven project - the markdown files ARE the implementation blueprint.
-**THINK** — Design simple working solution. Don't overcomplicate. Edit existing files rather than creating new ones when possible. IT MUST WORK, NOT BE PERFECT! Keep it simple, less is better. Perfect doesn't exist, just make it work.
-**TEST & FIX BUGS** — Run code, verify it works, fix any issues found
-
-## Architecture: Dual Technology Stack
-
-This project has **two distinct but integrated technology stacks**:
-1. **Unity 6.2 Gaming Engine**: C# avatar system, economy, networking (files under `Assets/Scripts/`)
-2. **MCP Agent Tooling**: Node.js-based Model Context Protocol servers for development automation
-
-Key documentation files (read in order):
-- `CATGIRL.md` — **Master architecture specification**: 683 lines defining Unity avatar systems, RPG mechanics, monetization via Unity Gaming Services, and complete technical implementation details
-- `UNITY_SETUP_GUIDE.md` — **Concrete implementation guide**: Unity project structure, specific C# class examples (CatgirlController, InventorySystem, UniversalBankingSystem), package dependencies, and build configurations
-- `MCP_SETUP_GUIDE.md` — **Development tooling setup**: 8 essential MCP servers, VS Code configuration, exact `npx`/`uvx` commands
-- `RELIGULOUS_MANTRA.md` — **Development philosophy & conventions**: Contains the "Sacred Laws" with emoji-coded CI/CD patterns, build command specifications, and the unique cultural context
-- `CONTAINER_ORGANIZATION.md` — **Deployment standards**: GHCR registry patterns, trademark compliance, container labeling
-- `build.md` + `todo.md` — **Current implementation status**: What works vs what needs to be built
-
-## Critical Project Characteristics
-
-**Documentation-as-Code**: The markdown files contain complete C# class implementations, Unity package configurations, and deployment scripts. Don't invent - extract from these specifications.
-
-**Trademark Requirements**: All public-facing content must use `BambiSleep™` (with trademark symbol). This is not optional - it's a legal compliance requirement.
-
-**Unique Development Culture**: This project follows "Universal Machine Philosophy" with emoji-coded development patterns (🌸 = package management, 👑 = architecture decisions, 💎 = quality metrics). Use these conventions when mirroring existing documentation only.
-
-## Essential Development Workflows
-
-**MCP Development Environment**: 8 servers providing filesystem, git, GitHub, memory, sequential-thinking, everything, brave-search, postgres via `npx`/`uvx`. Full VS Code config in `MCP_SETUP_GUIDE.md`.
-
-**Unity Project Creation**:
-```bash
-# From UNITY_SETUP_GUIDE.md - exact structure required
-mkdir -p catgirl-avatar-project/{Assets,ProjectSettings,Packages}
-# ProjectSettings/ProjectVersion.txt: Unity 6000.2.11f1
-# Packages/manifest.json: 15+ Unity Gaming Services dependencies
-```
-
-**Build Commands** (from RELIGULOUS_MANTRA.md):
-```bash
-npm test -- --coverage=100        # 100% test coverage requirement
-npm run build -- --universal     # Cross-platform build
-npm run deploy -- --aigf-mode    # AI girlfriend deployment mode
-volta pin node@20-lts            # Version management
-```
-
-**Container Deployment**:
-- Registry: `ghcr.io/bambisleepchat/bambisleep-church`
-- Tags: `v{major}.{minor}.{patch}`, `dev-{branch}`, `latest`
-- Required labels include BambiSleep™ trademark attribution
-
-## Code Architecture Patterns
-
-**Unity C# Structure** (complete implementations in UNITY_SETUP_GUIDE.md):
-```
-Assets/Scripts/
-├── Character/CatgirlController.cs     # 150+ line NetworkBehaviour implementation
-├── Economy/InventorySystem.cs         # Unity Gaming Services integration
-├── Economy/UniversalBankingSystem.cs  # Gambling + auction systems
-├── UI/InventoryUI.cs                  # UI Toolkit with pink theming
-└── Networking/CatgirlNetworkManager.cs # Netcode for GameObjects
-```
-
-**Key Technical Integrations**:
-- Unity Gaming Services (Economy, Authentication, Analytics, Lobby)
-- Netcode for GameObjects multiplayer
-- XR Interaction Toolkit (eye/hand tracking)
-- UI Toolkit (modern runtime UI)
-- Addressables (asset streaming)
-
-**Monetization Architecture**: Unity IAP + Gaming Services Economy with ethical guidelines (no pay-to-win, transparent drop rates, COPPA compliance)
-
-## Current Implementation Status
-
-**What Exists**: Complete architectural specifications (683-line CATGIRL.md, 859-line UNITY_SETUP_GUIDE.md), VS Code MCP configuration, container organization standards, and philosophical framework.
-
-**What's Missing** (per `todo.md`): 
-- `package.json` with Node.js 20+ dependencies
-- Unity 6.2 LTS installation verification  
-- MCP server connectivity testing
-- Dockerfile with proper GHCR labels
+- Unity 6.2 installation & avatar implementation (complete specs exist in UNITY_SETUP_GUIDE.md)
+- MCP server ↔ Unity WebSocket testing
+- Dockerfile with GHCR labels
 - GitHub Actions CI/CD pipeline
 
-## Safe Development Practices
+## Working with Personas
 
-**Unity Code Changes**:
-- Follow exact class structure from UNITY_SETUP_GUIDE.md (CatgirlController, InventorySystem, etc.)
-- Update `Packages/manifest.json` when adding Unity packages
-- Maintain Assets/Scripts folder hierarchy: `{Character,Inventory,Economy,Networking,UI}`
+When modifying conversational behavior, always reference `personas/bambi-core-persona.yaml`:
 
-**MCP Configuration Changes**:
-- Use exact `mcp.servers` JSON from MCP_SETUP_GUIDE.md
-- Prefer `npx -y @modelcontextprotocol/server-*` pattern for official servers
-- Use `uvx` for Python-based servers (brave-search, postgres)
+```yaml
+# Intimacy boundaries example
+allowed_intimacy:
+  - Flirty compliments: "Hey there, cutie~"
+  - Emotional support: "I've got you, babe"
+  - Playful teasing: "Ooh, someone's being naughty~"
 
-**Container Updates**:
-- Include all required labels from CONTAINER_ORGANIZATION.md
-- Maintain `ghcr.io/bambisleepchat/bambisleep-church` registry
-- Follow semantic versioning: `v{major}.{minor}.{patch}`
+prohibited_content:
+  - Explicit sexual content
+  - Coercive language
+  - Age roleplay
+  - Medical/legal advice
+```
 
-## Trademark & Cultural Compliance
+**Pattern:** Safety violations in `middleware/safety.ts` must align with persona boundaries in YAML spec.
 
-**Required**: Use `BambiSleep™` (with ™ symbol) in all public-facing content
-**Philosophy**: "Universal Machine Philosophy" with 8/8 MCP operational status
-**Quality Standards**: 100% test coverage, enterprise-grade error handling, cross-platform compatibility
+## Trademark Compliance
 
-## Quick Implementation Examples
+All public-facing content must use **BambiSleep™** (with ™ symbol). This is a legal requirement, not optional.
 
-**Add Unity Feature**: Extend existing classes in UNITY_SETUP_GUIDE.md rather than creating new files
-**Add MCP Server**: Copy mcp.servers block and add new entry with npx/uvx pattern  
-**Update Container**: Modify labels in CONTAINER_ORGANIZATION.md and rebuild with proper tagging
+Examples:
 
-*This is a specification-driven project - the documentation IS the implementation plan.*
->>>>>>> da208ee5b7838d1d6267ba61444c924b6a11e6ba
+- ✅ "BambiSleep™ Church CatGirl Avatar System"
+- ❌ "BambiSleep Church" or "Bambisleep"
+
+## Development Environment Setup
+
+8 essential MCP servers (see MCP_SETUP_GUIDE.md for full config):
+
+- filesystem, git, github, memory, sequential-thinking, everything (via `npx`)
+- brave-search, postgres (via `uvx`)
+
+VS Code `mcp.servers` configuration already set in `.vscode/settings.json`.
+
+**Verify MCP status:** Check VS Code status bar for "8/8 MCP operational" (from RELIGULOUS_MANTRA.md philosophy).
+
+## Quality Standards
+
+From RELIGULOUS_MANTRA.md "Sacred Laws":
+
+- 100% test coverage requirement
+- Enterprise-grade error handling
+- Cross-platform compatibility (Node.js 20+ LTS)
+- Volta version pinning (`volta pin node@20-lts`)
+
+Build validation:
+
+```powershell
+npm run validate  # Must pass before merge to main
+```
