@@ -363,7 +363,9 @@ export class ConsentService {
     this.db.prepare('DELETE FROM messages WHERE session_id IN (SELECT session_id FROM sessions WHERE user_id = ?)').run(userId);
     this.db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
     this.db.prepare('DELETE FROM consent_records WHERE user_id = ?').run(userId);
-    this.db.prepare('DELETE FROM audit_logs WHERE user_id = ?').run(userId);
+    // NOTE: Do NOT delete audit_logs - GDPR compliance requires audit trail persistence
+    // Nullify user_id in audit logs to maintain compliance while respecting right to be forgotten
+    this.db.prepare('UPDATE audit_logs SET user_id = NULL WHERE user_id = ?').run(userId);
     this.db.prepare('DELETE FROM user_profiles WHERE user_id = ?').run(userId);
 
     logger.info('🗑️ User data deleted (GDPR right to be forgotten)', {
