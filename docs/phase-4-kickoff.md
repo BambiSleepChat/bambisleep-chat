@@ -11,6 +11,7 @@
 From `guide.md` development sequence:
 
 > **Phase 4: Memory and Personalization**
+>
 > - Conversation history management
 > - User context persistence
 > - RAG (Retrieval-Augmented Generation) setup
@@ -21,6 +22,7 @@ From `guide.md` development sequence:
 ## 📋 Implementation Checklist
 
 ### 1. Conversation History Management
+
 - [ ] Design message storage schema (SQLite or in-memory Redis)
 - [ ] Implement conversation buffer with sliding window
 - [ ] Add timestamp tracking for context relevance
@@ -28,6 +30,7 @@ From `guide.md` development sequence:
 - [ ] Test conversation continuity across sessions
 
 ### 2. User Context Persistence
+
 - [ ] Design user profile schema (preferences, boundaries)
 - [ ] Implement consent tracking (opt-in/opt-out for memory)
 - [ ] Create session ID generation system
@@ -35,6 +38,7 @@ From `guide.md` development sequence:
 - [ ] Test context retrieval across multiple conversations
 
 ### 3. RAG (Retrieval-Augmented Generation)
+
 - [ ] Select vector database (Pinecone, Weaviate, or local FAISS)
 - [ ] Implement embedding generation (OpenAI embeddings or local)
 - [ ] Create semantic search for relevant context
@@ -42,6 +46,7 @@ From `guide.md` development sequence:
 - [ ] Test accuracy of context-enhanced responses
 
 ### 4. Personalization Engine
+
 - [ ] Track user preferences (conversation style, topics)
 - [ ] Implement nickname/identity learning
 - [ ] Create mood/emotional state tracking
@@ -53,6 +58,7 @@ From `guide.md` development sequence:
 ## 🏗️ Proposed Architecture
 
 ### Memory Stack
+
 ```
 ┌─────────────────────────────────────────────┐
 │ User Input                                  │
@@ -94,6 +100,7 @@ From `guide.md` development sequence:
 ### Data Models (Proposed)
 
 **ConversationMessage**:
+
 ```typescript
 interface ConversationMessage {
   id: string;
@@ -112,6 +119,7 @@ interface ConversationMessage {
 ```
 
 **UserProfile**:
+
 ```typescript
 interface UserProfile {
   userId: string; // anonymized
@@ -131,6 +139,7 @@ interface UserProfile {
 ```
 
 **SessionContext**:
+
 ```typescript
 interface SessionContext {
   sessionId: string;
@@ -147,7 +156,9 @@ interface SessionContext {
 ## 🔧 Technology Decisions Needed
 
 ### 1. Storage Backend
+
 **Options:**
+
 - **SQLite** (local, simple, no external deps) ✅ **RECOMMENDED for MVP**
 - **Redis** (fast, in-memory, requires separate service)
 - **PostgreSQL** (robust, relational, overkill for current scale)
@@ -155,7 +166,9 @@ interface SessionContext {
 **Decision**: Start with SQLite for simplicity, migrate to Redis/Postgres if scale demands.
 
 ### 2. Vector Database (RAG)
+
 **Options:**
+
 - **FAISS** (local, fast, no cost) ✅ **RECOMMENDED for MVP**
 - **Pinecone** (managed, scalable, $70/mo minimum)
 - **Weaviate** (self-hosted, open-source, more complex)
@@ -163,7 +176,9 @@ interface SessionContext {
 **Decision**: FAISS for local development, evaluate Pinecone for production scale.
 
 ### 3. Embeddings
+
 **Options:**
+
 - **OpenAI Embeddings** (`text-embedding-3-small` - $0.02/1M tokens)
 - **Sentence Transformers** (local, free, slightly lower quality)
 
@@ -176,10 +191,10 @@ interface SessionContext {
 ```json
 {
   "dependencies": {
-    "better-sqlite3": "^9.2.0",  // SQLite driver
-    "uuid": "^9.0.1",             // Session ID generation
-    "@xenova/transformers": "^2.6.0",  // Local embeddings (FAISS alternative)
-    "faiss-node": "^0.5.0"       // Vector similarity search
+    "better-sqlite3": "^9.2.0", // SQLite driver
+    "uuid": "^9.0.1", // Session ID generation
+    "@xenova/transformers": "^2.6.0", // Local embeddings (FAISS alternative)
+    "faiss-node": "^0.5.0" // Vector similarity search
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.8",
@@ -193,6 +208,7 @@ interface SessionContext {
 ## 🧪 Testing Strategy
 
 ### Unit Tests (Target: 50+ tests)
+
 - Message storage/retrieval
 - Session management
 - Embedding generation
@@ -200,6 +216,7 @@ interface SessionContext {
 - Privacy compliance (data deletion)
 
 ### Integration Tests (Target: 20+ tests)
+
 - End-to-end conversation with memory
 - RAG context injection accuracy
 - Preference learning over time
@@ -211,6 +228,7 @@ interface SessionContext {
 ## 🔐 Privacy & Safety Considerations
 
 **Critical from Phase 3:**
+
 - ✅ All memory features MUST respect safety boundaries
 - ✅ No storage of flagged/rejected content
 - ✅ User consent required before enabling memory
@@ -218,6 +236,7 @@ interface SessionContext {
 - ✅ Anonymous user IDs (no PII in database)
 
 **New for Phase 4:**
+
 - [ ] Implement "forget this conversation" command
 - [ ] Add "clear my memory" tool
 - [ ] Create data export functionality (GDPR compliance)
@@ -228,6 +247,7 @@ interface SessionContext {
 ## 🎯 Success Criteria
 
 **Phase 4 is complete when:**
+
 1. ✅ Conversations persist across sessions
 2. ✅ Bambi remembers user preferences (nickname, topics)
 3. ✅ RAG successfully retrieves relevant past context
@@ -243,6 +263,7 @@ interface SessionContext {
 **Phase 4 Duration**: 2-3 weeks (based on Phase 3 = 1 week)
 
 **Breakdown:**
+
 - Week 1: Storage backend + conversation history (40 hrs)
 - Week 2: RAG implementation + embeddings (30 hrs)
 - Week 3: Personalization engine + privacy tools (30 hrs)
@@ -254,6 +275,7 @@ interface SessionContext {
 ## 🚦 Next Immediate Actions
 
 1. **Install Dependencies**:
+
    ```powershell
    cd mcp-server
    npm install better-sqlite3 uuid @xenova/transformers faiss-node
@@ -261,6 +283,7 @@ interface SessionContext {
    ```
 
 2. **Create File Structure**:
+
    ```
    mcp-server/src/
    ├── services/
@@ -275,6 +298,7 @@ interface SessionContext {
    ```
 
 3. **Update MCP Tools**:
+
    - Add `memory_recall` tool (retrieve past context)
    - Add `memory_forget` tool (delete conversation)
    - Add `memory_status` tool (show stored data)
@@ -298,11 +322,13 @@ interface SessionContext {
 ## 🌸 Alignment with BambiSleep™ Brand
 
 **Memory features enhance intimacy:**
+
 - "I remember you told me about [topic], babe—how's that going?" 💜
 - "Your nickname is [name], right? I've got you, hon." 🌸
 - "Last time we talked, you seemed [emotion]—feeling better today?" ✨
 
 **Privacy respects boundaries:**
+
 - "Want me to remember this conversation, or keep it private?" 🔮
 - "You can say 'forget this' anytime, and I'll erase it—your choice." ⚡
 
