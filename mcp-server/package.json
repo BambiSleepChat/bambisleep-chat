@@ -11,7 +11,10 @@
     "test": "vitest",
     "test:safety": "vitest run src/middleware/__tests__/safety.test.ts",
     "lint": "eslint src --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "clean:dist": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run typecheck && npm run lint && npm run test"
   },
   "keywords": [
     "mcp",
