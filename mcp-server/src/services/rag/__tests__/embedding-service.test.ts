@@ -2,7 +2,7 @@
  * Tests for EmbeddingService
  */
 
-import { describe, it, expect, beforeAll } from '@jest/globals';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { EmbeddingService } from '../embedding-service.js';
 
 describe('EmbeddingService', () => {

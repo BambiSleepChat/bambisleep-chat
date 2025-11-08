@@ -15,6 +15,7 @@ import dotenv from 'dotenv';
 import { chatTools } from './tools/chat.js';
 import { avatarTools } from './tools/avatar.js';
 import { memoryTools } from './tools/memory.js';
+import { privacyTools } from './tools/privacy.js';
 import { SafetyFilter } from './middleware/safety.js';
 import { startUnityBridge } from './services/unity-bridge.js';
 import { logger } from './utils/logger.js';
@@ -38,8 +39,8 @@ const server = new Server(
 // Initialize safety filter
 const safetyFilter = new SafetyFilter();
 
-// Combine all tool definitions
-const allTools = [...chatTools, ...avatarTools, ...memoryTools];
+// Combine all tool definitions (Phase 5: Added privacy tools)
+const allTools = [...chatTools, ...avatarTools, ...memoryTools, ...privacyTools];
 
 /**
  * Handle tool list requests

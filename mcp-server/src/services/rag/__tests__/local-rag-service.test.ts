@@ -2,7 +2,7 @@
  * Tests for LocalRAGService
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { LocalRAGService } from '../local-rag-service.js';
 
 describe('LocalRAGService', () => {

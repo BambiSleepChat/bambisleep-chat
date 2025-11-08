@@ -2,7 +2,7 @@
  * Tests for ContextRetrievalService
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ContextRetrievalService } from '../context-retrieval-service.js';
 import { LocalRAGService } from '../../rag/index.js';
 import type { Message } from '../types.js';
