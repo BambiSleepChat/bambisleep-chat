@@ -1,0 +1,85 @@
+# Production Deployment Configuration
+# For Phase 8.3 - Production Deployment
+
+production:
+  # Application
+  app:
+    name: "bambisleep-chat"
+    version: "2.1.0"
+    environment: "production"
+    port: 3000
+    workers: 4
+    
+  # Database (PostgreSQL)
+  database:
+    host: "${DB_HOST}"
+    port: 5432
+    database: "bambisleep_prod"
+    user: "${DB_USER}"
+    password: "${DB_PASSWORD}"
+    pool:
+      min: 10
+      max: 50
+      idle_timeout_ms: 30000
+    ssl: true
+    
+  # Cache (Redis)
+  cache:
+    host: "${REDIS_HOST}"
+    port: 6379
+    password: "${REDIS_PASSWORD}"
+    db: 0
+    ttl_seconds: 3600
+    
+  # Storage (S3)
+  storage:
+    bucket: "bambisleep-prod-data"
+    region: "us-east-1"
+    # Credentials loaded from IAM role
+    
+  # CDN
+  cdn:
+    enabled: true
+    domain: "cdn.bambisleep.chat"
+    cache_ttl_seconds: 86400
+    
+  # Monitoring
+  monitoring:
+    prometheus:
+      enabled: true
+      port: 9090
+      path: "/metrics"
+      
+    grafana:
+      enabled: true
+      port: 3001
+      
+    logging:
+      level: "info"
+      format: "json"
+      destination: "cloudwatch"
+      
+  # Security
+  security:
+    rate_limit:
+      window_ms: 60000
+      max_requests: 100
+    cors:
+      origins: ["https://bambisleep.chat"]
+    helmet:
+      enabled: true
+      
+  # Scaling
+  scaling:
+    min_instances: 2
+    max_instances: 10
+    target_cpu_percent: 70
+    target_memory_percent: 80
+    
+  # Health Checks
+  health:
+    liveness_path: "/health/live"
+    readiness_path: "/health/ready"
+    startup_path: "/health/startup"
+    interval_seconds: 10
+    timeout_seconds: 5

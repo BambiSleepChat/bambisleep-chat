@@ -1,0 +1,38 @@
+# Voice Service Configuration
+# For Phase 7.2 - Voice Input/Output
+
+voice:
+  # Speech-to-Text (Whisper)
+  stt:
+    provider: "openai-whisper"
+    model: "whisper-1"
+    language: "en"
+    # API key loaded from environment: OPENAI_API_KEY
+    
+  # Text-to-Speech (ElevenLabs)
+  tts:
+    provider: "elevenlabs"
+    voice_id: "VOICE_ID_HERE"  # Replace with selected voice
+    model: "eleven_monolingual_v1"
+    stability: 0.5
+    similarity_boost: 0.75
+    # API key loaded from environment: ELEVENLABS_API_KEY
+    
+  # Voice Activity Detection
+  vad:
+    enabled: true
+    silence_duration_ms: 800
+    speech_threshold: 0.5
+    
+  # Audio Processing
+  audio:
+    sample_rate: 16000
+    channels: 1
+    format: "wav"
+    max_duration_seconds: 30
+    
+  # Caching
+  cache:
+    enabled: true
+    ttl_hours: 24
+    max_size_mb: 500

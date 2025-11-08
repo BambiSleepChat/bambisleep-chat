@@ -1,0 +1,59 @@
+# Avatar Configuration
+# For Phase 7.1 - Unity Avatar Integration
+
+avatar:
+  # WebSocket Configuration
+  websocket:
+    host: "localhost"
+    port: 3001
+    path: "/avatar"
+    heartbeat_interval_ms: 5000
+    reconnect_delay_ms: 3000
+    max_reconnect_attempts: 5
+    
+  # Emotion States
+  emotions:
+    - id: "happy"
+      animation: "purr"
+      duration_ms: 2000
+      intensity: 0.8
+      
+    - id: "curious"
+      animation: "ear_twitch"
+      duration_ms: 1500
+      intensity: 0.6
+      
+    - id: "playful"
+      animation: "bounce"
+      duration_ms: 2500
+      intensity: 0.9
+      
+    - id: "affectionate"
+      animation: "nuzzle"
+      duration_ms: 3000
+      intensity: 0.7
+      
+    - id: "neutral"
+      animation: "idle"
+      duration_ms: -1
+      intensity: 0.5
+      
+  # Animation Settings
+  animations:
+    blend_time_ms: 300
+    default_animation: "idle"
+    loop_idle: true
+    
+  # Visual Settings
+  visuals:
+    eye_blink_interval_ms: 4000
+    pupil_dilation_speed: 0.3
+    tail_wag_speed: 1.2
+    ear_movement_range: 30
+    
+  # Performance
+  performance:
+    target_fps: 60
+    lod_distance: [10, 25, 50]
+    enable_shadows: true
+    quality_preset: "high"
