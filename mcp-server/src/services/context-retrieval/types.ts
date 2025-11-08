@@ -30,6 +30,7 @@ export interface ConversationContext {
   readonly summary?: string;
   readonly totalMessages: number;
   readonly averageRelevance: number;
+  readonly confidence?: number;
 }
 
 export interface ScoringWeights {

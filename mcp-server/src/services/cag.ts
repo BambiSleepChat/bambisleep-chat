@@ -93,7 +93,7 @@ export class CAGService {
         topK: retrievalTopK,
         minSimilarity: minRelevanceScore,
         sessionId: null, // Search across all sessions
-        excludeMessageIds: currentMessages.map(m => m.id),
+        excludeMessageIds: currentMessages.map(m => parseInt(m.id) || 0).filter(id => id > 0),
       });
 
       // 3. Get user profile if enabled

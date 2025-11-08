@@ -149,8 +149,12 @@ describe.skip('Unity-MCP Bridge Integration (requires Unity server)', () => {
 });
 
 describe('Unity Animation Sync', () => {
-  it('should trigger avatar animations via MCP', async () => {
-    // TODO: Add Unity-specific animation sync tests
+  it.skip('should trigger avatar animations via MCP (requires Unity)', async () => {
+    // Unity animation sync will be tested when Unity server is running
+    // This requires:
+    // 1. Unity server running on localhost:3001
+    // 2. WebSocket connection established
+    // 3. Animation trigger API configured
     expect(true).toBe(true);
   });
 });

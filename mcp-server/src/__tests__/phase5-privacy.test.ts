@@ -176,7 +176,7 @@ describe('Phase 5: Privacy & Consent Management', () => {
       await consentService.exportUserData(userId);
 
       const auditLogs = consentService.getUserAuditLogs(userId, 10);
-      const exportLogs = auditLogs.filter((log) => 
+      const exportLogs = auditLogs.filter((log) =>
         log.action === 'data_export_requested' || log.action === 'data_export_completed'
       );
 
@@ -195,7 +195,7 @@ describe('Phase 5: Privacy & Consent Management', () => {
         .prepare('SELECT * FROM audit_logs WHERE user_id = ?')
         .all(userId);
 
-      const deletionLog = auditLogs.find((log: any) => 
+      const deletionLog = auditLogs.find((log: any) =>
         log.action === 'data_deletion_requested'
       );
 

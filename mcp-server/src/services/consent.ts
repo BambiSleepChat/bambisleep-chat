@@ -78,7 +78,7 @@ export class ConsentService {
     // Drop and recreate audit_logs to ensure correct schema (nullable user_id)
     // GDPR compliance requires audit trail persistence even after user deletion
     this.db.exec(`DROP TABLE IF EXISTS audit_logs`);
-    
+
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS consent_records (
         id TEXT PRIMARY KEY,
@@ -369,7 +369,8 @@ export class ConsentService {
     this.db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
     this.db.prepare('DELETE FROM consent_records WHERE user_id = ?').run(userId);
     // NOTE: Do NOT delete audit_logs - GDPR compliance requires audit trail persistence
-    // Audit logs contain no PII, only user_id references for compliance/legal purposes
+    // Nullify user_id in audit logs to maintain compliance while respecting right to be forgotten
+    this.db.prepare('UPDATE audit_logs SET user_id = NULL WHERE user_id = ?').run(userId);
     this.db.prepare('DELETE FROM user_profiles WHERE user_id = ?').run(userId);
 
     logger.info('🗑️ User data deleted (GDPR right to be forgotten)', {
