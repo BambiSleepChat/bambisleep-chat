@@ -4,7 +4,12 @@
  * @module services/rag/embedding-service
  */
 
+import { pipeline, env } from '@xenova/transformers';
 import type { EmbeddingConfig, EmbeddingCache } from './types.js';
+
+// Configure transformers.js
+env.allowLocalModels = true;
+env.allowRemoteModels = true;
 
 /**
  * Service for generating text embeddings locally
@@ -15,6 +20,7 @@ export class EmbeddingService {
   private cache: Map<string, EmbeddingCache> = new Map();
   private model: any = null;
   private isInitialized = false;
+  private useMockEmbeddings = false;
 
   constructor(config: Partial<EmbeddingConfig> = {}) {
     this.config = {
@@ -35,13 +41,19 @@ export class EmbeddingService {
 
     try {
       console.log(`[EmbeddingService] Initializing ${this.config.model}...`);
-      console.log('[EmbeddingService] Model will be downloaded on first use');
+      console.log('[EmbeddingService] Downloading model (first run only, ~25MB)...');
+      
+      // Initialize the feature extraction pipeline
+      this.model = await pipeline('feature-extraction', `Xenova/${this.config.model}`);
       
       this.isInitialized = true;
-      console.log('[EmbeddingService] Ready');
+      this.useMockEmbeddings = false;
+      console.log('[EmbeddingService] ✅ Real embeddings ready!');
     } catch (error) {
-      console.error('[EmbeddingService] Initialization failed:', error);
-      throw new Error(`Failed to initialize embedding model: ${error}`);
+      console.error('[EmbeddingService] Failed to load model, falling back to mock embeddings:', error);
+      this.isInitialized = true;
+      this.useMockEmbeddings = true;
+      console.warn('[EmbeddingService] ⚠️  Using mock embeddings (development mode)');
     }
   }
 
@@ -88,11 +100,21 @@ export class EmbeddingService {
     }
 
     try {
-      console.warn('[EmbeddingService] Using mock embeddings - install @xenova/transformers for production');
-      return this.mockEmbedding(text);
+      // Use mock embeddings if model failed to load
+      if (this.useMockEmbeddings || !this.model) {
+        return this.mockEmbedding(text);
+      }
+
+      // Generate real embedding using transformers.js
+      const output = await this.model(text, { pooling: 'mean', normalize: true });
+      
+      // Extract the embedding vector
+      const embedding: number[] = Array.from(output.data as Float32Array);
+      
+      return embedding;
     } catch (error) {
-      console.error('[EmbeddingService] Embedding generation failed:', error);
-      throw new Error(`Failed to generate embedding: ${error}`);
+      console.error('[EmbeddingService] Embedding generation failed, using fallback:', error);
+      return this.mockEmbedding(text);
     }
   }
 

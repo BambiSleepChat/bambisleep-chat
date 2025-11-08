@@ -349,6 +349,8 @@ describe('MemoryService Summarization', () => {
   });
 
   it('should not summarize short conversations', async () => {
+    // Create user first for foreign key constraint
+    await memoryService.createOrUpdateUser(testUserId + '-short');
     const shortSession = memoryService.getOrCreateSession(testUserId + '-short');
     await memoryService.storeMessage(shortSession.session_id, 'user', 'Hello');
     await memoryService.storeMessage(shortSession.session_id, 'assistant', 'Hi there!');

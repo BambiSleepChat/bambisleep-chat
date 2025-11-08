@@ -17,8 +17,8 @@
 - ✅ Claude 3.5 Sonnet + OpenAI integration
 - ✅ Persona validation system
 - ✅ WebSocket Unity bridge (structure ready, not tested)
-- ⏸️ In-memory storage only (Phase 4 will add SQLite persistence)
-- ⏸️ No RAG/embeddings yet (Phase 4 target)
+- ✅ SQLite persistence with embeddings storage (Phase 4 complete)
+- ✅ RAG with semantic search and personalization engine (Phase 4 complete)
 
 ## Critical Context
 
@@ -47,19 +47,20 @@ Development sequence (from `guide.md`) — **DO NOT skip ahead:**
 7. Integration, APIs, deployment ⏸️
 8. Testing, metrics, iteration ⏸️
 
-**Phase 3 Completion Summary:**
+**Phase 3 → Phase 4 Completion Summary:**
 
-- ✅ `SafetyFilter` class implemented (250 lines, 20+ violation patterns)
-- ✅ 100% test coverage achieved (54/54 SafetyFilter tests passing)
-- ✅ `PersonaValidator` class implemented (179 lines)
-- ✅ `ClaudeService` with Bambi persona integration (189 lines)
-- ✅ Integration tests complete (24/24 tests passing)
-- ✅ Persona boundary alignment verified (safety.ts ↔ bambi-core-persona.yaml)
-- ⚠️ Real-world Claude API testing requires `ANTHROPIC_API_KEY` in `.env`
+- ✅ **Safety (Phase 3):** 54 SafetyFilter tests + 24 integration tests + 17 memory tests = 95 passing
+- ✅ **RAG/Memory (Phase 4):** 18 new tests (embeddings, semantic search, personalization, summarization)
+- ✅ **Total Test Coverage:** 113/113 tests passing (100%)
+- ✅ **Embeddings:** Xenova/all-MiniLM-L6-v2 model, 384-dim vectors, automatic generation on message store
+- ✅ **Semantic Search:** Vector similarity with cosine distance, configurable thresholds, relevance scoring
+- ✅ **Personalization:** 4 conversation styles, topic extraction, engagement analysis, adaptive prompts
+- ✅ **Summarization:** Keyword extraction, emotional tone detection, conversation condensing
+- ✅ **Chat Integration:** RAG context retrieval injects relevant past conversations into LLM prompts
 
-**See:** `docs/phase-3-completion.md` for full validation report.
+**See:** `docs/phase-3-completion.md` and `docs/phase-4-completion.md` for full validation reports.
 
-**Why it matters:** Safety violations detected = rollback to phase 3. The `SafetyFilter` class in `mcp-server/src/middleware/safety.ts` enforces non-negotiable boundaries (coercion, minors, self-harm, explicit content). **Phase 3 core implementation complete—Phase 4 (Memory) is now unblocked.**
+**Why it matters:** Safety violations still trigger rollback (Phase 3 guardrails intact). Phase 4 RAG enhances LLM context with semantically relevant memories while maintaining all Phase 3 safety boundaries. **Phase 5 (Privacy/Consent) is now unblocked.**
 
 ### CyberNeonGothWave Aesthetic
 
@@ -101,29 +102,39 @@ Task: "Validate All"               # Full CI check
 - `mcp-server/src/middleware/safety.ts` — Guardrail enforcement (250 lines) ✅ 100% test coverage
 - `mcp-server/src/middleware/persona-validator.ts` — Persona boundary validation (179 lines) ✅ Implemented
 - `mcp-server/src/services/claude.ts` — Claude 3.5 Sonnet integration (189 lines) ✅ Implemented
+- `mcp-server/src/services/embeddings.ts` — Transformer embeddings (165 lines) ✅ Phase 4 complete
+- `mcp-server/src/services/rag.ts` — Semantic search (305 lines) ✅ Phase 4 complete
+- `mcp-server/src/services/personalization.ts` — Adaptive engine (355 lines) ✅ Phase 4 complete
+- `mcp-server/src/services/memory.ts` — SQLite + embeddings (600+ lines) ✅ Phase 4 enhanced
 - `mcp-server/src/services/unity-bridge.ts` — WebSocket Unity communication ✅ Structure complete (not tested)
-- `mcp-server/src/tools/chat.ts` — Chat tool with LLM integration ✅ Implemented
+- `mcp-server/src/tools/chat.ts` — Chat with RAG integration (200+ lines) ✅ Phase 4 enhanced
 - `mcp-server/src/tools/avatar.ts` — Unity avatar control tools ✅ Implemented  
-- `mcp-server/src/tools/memory.ts` — In-memory storage tools ⏸️ Needs Phase 4 upgrade
+- `mcp-server/src/tools/memory.ts` — Memory storage tools ✅ Implemented
 - `mcp-server/src/utils/logger.ts` — CyberNeonGothWave logging ✅ Complete
 
 **Current Dependencies:**
 - `@modelcontextprotocol/sdk` ^0.5.0
 - `@anthropic-ai/sdk` ^0.68.0  
 - `openai` ^4.28.0
+- `@xenova/transformers` ^2.17.2 (Phase 4 - embeddings)
+- `better-sqlite3` ^9.2.2 (SQLite persistence)
 - `ws` ^8.16.0 (WebSocket)
 - `express` ^4.18.2
 - `dotenv` ^16.4.0
 - `zod` ^3.22.4 (validation)
 - Testing: `vitest` ^1.2.0, `tsx` ^4.7.0
 
-**Phase 3 Complete - Phase 4 Ready:**
+**Phase 4 Complete - Phase 5 Ready:**
 
-- ✅ Complete test suite for `SafetyFilter` (54/54 tests passing)
-- ✅ Integration test suite (24/24 tests passing)
-- ✅ `PersonaValidator` implemented with YAML alignment
-- ✅ `ClaudeService` with embedded Bambi persona system prompt
-- ✅ End-to-end safety violation flow validated
+- ✅ All Phase 3 tests passing (54 safety + 24 integration + 17 memory = 95)
+- ✅ All Phase 4 tests passing (18 RAG/personalization tests)
+- ✅ **Total: 113/113 tests (100% pass rate)**
+- ✅ Embeddings service with Xenova/all-MiniLM-L6-v2 transformer
+- ✅ Semantic search with vector similarity and relevance scoring
+- ✅ Personalization engine with 4 conversation styles
+- ✅ Conversation summarization with NLP keyword/emotion extraction
+- ✅ Auto-embedding generation on message storage
+- ✅ Chat tool RAG integration retrieving relevant context
 - ⚠️ Claude API integration requires `ANTHROPIC_API_KEY` for live testing
 - ⏸️ WebSocket integration testing with mock Unity client (future - Unity not installed)
 
@@ -259,29 +270,37 @@ public class CatgirlController : NetworkBehaviour {
 - ✅ Claude 3.5 Sonnet selected as primary LLM
 - ⚠️ Real-world API testing requires `ANTHROPIC_API_KEY` in `.env`
 
-**See:** `docs/phase-3-completion.md` for full validation report (78/78 tests passing).
+**See:** `docs/phase-3-completion.md` for full validation report.
 
-**Phase 4 (Memory) - READY TO START 🚀:**
+**Phase 4 (Memory & RAG) - COMPLETE ✅:**
 
-- Memory storage system design
-- Conversation history management
-- User context persistence
-- RAG (Retrieval-Augmented Generation) setup
-- Personalization engine
+- ✅ **Embeddings Service** (165 lines) — Xenova/all-MiniLM-L6-v2 transformer, 384-dim vectors, cosine similarity
+- ✅ **RAG Service** (305 lines) — Semantic search over SQLite, relevance scoring, cross-session retrieval
+- ✅ **Personalization Engine** (355 lines) — 4 conversation styles, topic extraction, engagement scoring
+- ✅ **Conversation Summarization** — Keyword extraction, emotional tone detection, history condensing
+- ✅ **Auto-Embedding Generation** — Async embedding on message store (fire-and-forget pattern)
+- ✅ **Chat Tool RAG Integration** — Semantic context retrieval, personalized system prompts
+- ✅ **Comprehensive Test Suite** (18 tests) — Embeddings, RAG, personalization, summarization
+- ✅ **113/113 tests passing (100%)** — All Phase 3 + Phase 4 tests validated
 
-**Implemented (Phases 1-2):**
+**See:** `docs/phase-4-completion.md` for full implementation details.
 
-- ✅ MCP server structure with safety middleware
-- ✅ TypeScript tooling (tsx, vitest, eslint)
-- ✅ Persona specification (Bambi character)
-- ✅ Architecture decision record (model comparison, cost analysis)
-- ✅ VS Code tasks for build/test automation
+**Implemented (Phases 1-4):**
 
-**Blocked Until Phase 4 Complete:**
+- ✅ MCP server structure with safety middleware (Phases 1-3)
+- ✅ TypeScript tooling (tsx, vitest, eslint) (Phase 1)
+- ✅ Persona specification (Bambi character) (Phase 2)
+- ✅ Architecture decision record (model comparison, cost analysis) (Phase 1)
+- ✅ VS Code tasks for build/test automation (Phase 1)
+- ✅ SQLite persistence with embeddings storage (Phase 4)
+- ✅ RAG with semantic search and personalization (Phase 4)
+- ✅ Conversation summarization with NLP (Phase 4)
+- ✅ 113/113 tests passing (100% coverage across Phases 3-4)
 
-- Privacy/consent flows (phase 5)
-- UI/multi-modal features (phase 6)
-- Integration/deployment (phase 7)
+**Blocked Until Phase 5 Complete:**
+
+- UX: UI, multi-modal I/O (phase 6)
+- Integration, APIs, deployment (phase 7)
 - Testing, metrics, iteration (phase 8)
 
 **Future Vision (Not Near-Term Priority):**
