@@ -1,555 +1,481 @@
-# BambiSleep™ Church - AI Agent Guide# BambiSleep™ Church - AI Agent Guide
+# BambiSleep™ Church - AI Coding Agent Guide
 
-## Quick Reference## Quick Reference
+## Project Quick Reference
 
-**Dual-stack:** MCP TypeScript server + Unity 6.2 avatar (spec-only, not installed)
+**What is this?** Dual-stack system combining Unity 6.2 avatar platform with TypeScript MCP server for intimate AI assistant with safety-first architecture.
 
-**Dual-stack:** MCP TypeScript server + Unity 6.2 avatar (spec-only, not installed) **Status:** Phase 6 complete — 152/162 tests (94%), 0 lint errors, 54 warnings, production ready
+**Two codebases in one repo:**
 
-**Status:** Phase 6 complete — 152/162 tests (94%), 0 lint errors, 54 warnings, production ready **Branch:** `phase-4-rag-personalization` (default: `main`, stable: `prod`)
+1. `mcp-server/` — Node.js 20+ TypeScript MCP control tower ✅ **Phases 4-6 complete** (151/162 tests passing, 10 skipped, 1 flaky privacy test)
+2. `unity-avatar/` — Unity 6.2 C# CatGirl avatar system (📋 **specification only**: complete C# class designs in UNITY_SETUP_GUIDE.md, no Unity install yet)
 
-**Branch:** `phase-4-rag-personalization` (default: `main`, stable: `prod`)
+**Current branch:** `phase-4-rag-personalization` | **Default branch:** `main` | **Stable branch:** `prod`
 
-### Implementation Complete ✅
+**Current Implementation Status:**
 
-### Implementation Complete ✅- MCP server: 4 tool categories (chat, avatar, memory, privacy)
+- ✅ MCP server with 4 tool categories (chat, avatar, memory, privacy)
+- ✅ Safety middleware with 20+ violation patterns (54 tests passing)
+- ✅ Claude 3.5 Sonnet + OpenAI integration
+- ✅ Persona validation system
+- ✅ WebSocket Unity bridge (structure ready, not tested - 9 skipped tests)
+- ✅ SQLite persistence with embeddings storage (Phase 4 complete)
+- ✅ RAG with semantic search and personalization engine (Phase 4 complete)
+- ✅ GDPR compliance with consent management (Phase 5 complete - 25/26 privacy tests passing)
+- ✅ Context-Aware Generation (CAG) service combining RAG + profiles
+- ✅ Integrated chat pipeline (<200ms response time)
+- ✅ Fire-and-forget async embedding generation pattern
 
-- Safety: 20+ violation patterns, 54 tests passing
+## Critical Context
 
-- MCP server: 4 tool categories (chat, avatar, memory, privacy)- LLM: Claude 3.5 Sonnet + OpenAI integration
+### Documentation-as-Code Philosophy
 
-- Safety: 20+ violation patterns, 54 tests passing- Persona validation system
+This is a **specification-driven project** — markdown files contain complete implementation blueprints:
 
-- LLM: Claude 3.5 Sonnet + OpenAI integration- WebSocket Unity bridge (not tested, 10 skipped tests)
+- `CATGIRL.md` (683 lines) — Unity avatar systems, RPG mechanics, monetization
+- `UNITY_SETUP_GUIDE.md` (859 lines) — Complete C# class implementations, package configs
+- `MCP_SETUP_GUIDE.md` (330 lines) — 8 MCP servers setup, VS Code integration
+- `personas/bambi-core-persona.yaml` (515 lines) — Persona specification with boundaries
+- `docs/architecture-decision-record.md` (451 lines) — Model selection criteria, cost analysis
 
-- Persona validation system- SQLite + embeddings (384-dim vectors, Xenova/all-MiniLM-L6-v2)
+**Rule:** Extract patterns from these specs, don't invent new approaches.
 
-- WebSocket Unity bridge (not tested, 10 skipped tests)- RAG semantic search + personalization (4 styles)
+### Safety-First Architecture Priority
 
-- SQLite + embeddings (384-dim vectors, Xenova/all-MiniLM-L6-v2)- GDPR: consent, export, deletion, audit (26 tests)
+Development sequence (from `guide.md`) — **DO NOT skip ahead:**
 
-- RAG semantic search + personalization (4 styles)- CAG service (context-aware generation)
+1. Core model & architecture ✅ (Claude 3.5 Sonnet selected)
+2. Persona and conversation design ✅ (bambi-core-persona.yaml complete)
+3. Safety, ethics, and guardrails ✅ (54/54 tests passing)
+4. Memory and personalization ✅ (RAG with 384-dim embeddings, 18 tests passing)
+5. Privacy, data handling, consent ✅ (GDPR compliance, 25/26 tests passing - 1 flaky)
+6. Testing, debugging, code cleanup ✅ (Phase 6 complete, 151/162 total tests)
+7. UX: UI, multi-modal I/O 🚀 **NEXT** (Phase 7 - voice, avatar, images)
+8. Integration, APIs, deployment ⏸️
 
-- GDPR: consent, export, deletion, audit (26 tests)- Integrated chat: <200ms pipeline
+**Phase 6 (Testing & Cleanup) Complete:**
 
-- CAG service (context-aware generation)
+- ✅ All build errors resolved (TypeScript compilation clean)
+- ✅ TODO/FIXME markers addressed (1 converted to skipped test with documentation)
+- ✅ Type safety improvements (confidence field added to ConversationContext)
+- ✅ Full validation passing (typecheck + lint + test)
+- ✅ 151/162 tests passing (68% more than Phase 4 estimate)
+- ⏸️ 9 Unity integration tests skipped (awaiting Unity server)
+- ⚠️ 1 flaky privacy test (non-blocking, race condition in embedding generation)
 
-- Integrated chat: <200ms pipeline## Critical Context
+**See:** `PHASE_4_5_COMPLETE.md`, `PHASE_6_COMPLETE.md`, and `PHASE_7_PLAN.md` for details.
 
-## Critical Context### Documentation-as-Code
+### CyberNeonGothWave Aesthetic
 
-**Specs = Implementation blueprints** — Extract patterns, don't invent:
+All visual elements use this color palette:
 
-### Documentation-as-Code- `CATGIRL.md` (683 lines) — Unity systems, RPM, monetization
+- Background: hex 0A0014 (Deep Void)
+- Primary: hex 00F0FF (Cyber Cyan)
+- Accents: hex FF006E (Hot Pink), hex FF10F0 (Neon Purple)
+- Success: hex 39FF14 (Electric Lime)
 
-- `UNITY_SETUP_GUIDE.md` (859 lines) — Complete C# classes
+Emoji conventions (from RELIGULOUS_MANTRA.md):
 
-**Specs = Implementation blueprints** — Extract patterns, don't invent:- `MCP_SETUP_GUIDE.md` (330 lines) — 8 MCP servers setup
+- 🌸 Package management
+- 👑 Architecture decisions
+- 💎 Quality metrics
+- 🦋 Transformation processes
 
-- `personas/bambi-core-persona.yaml` (515 lines) — Character boundaries
+## Essential Commands
 
-- `CATGIRL.md` (683 lines) — Unity systems, RPM, monetization- `docs/architecture-decision-record.md` (451 lines) — Model selection
-
-- `UNITY_SETUP_GUIDE.md` (859 lines) — Complete C# classes- `docs/phases/` — Phase reports (4-7)
-
-- `MCP_SETUP_GUIDE.md` (330 lines) — 8 MCP servers setup
-
-- `personas/bambi-core-persona.yaml` (515 lines) — Character boundaries### Development Sequence (DO NOT skip)
-
-- `docs/architecture-decision-record.md` (451 lines) — Model selection1. ✅ Core model (Claude 3.5 Sonnet)
-
-- `docs/phases/` — Phase reports (4-7)2. ✅ Persona design (bambi-core-persona.yaml)
-
-3. ✅ Safety guardrails (54/54 tests)
-
-### Development Sequence (DO NOT skip)4. ✅ Memory/RAG (18 tests, 384-dim embeddings)
-
-5. ✅ Privacy/GDPR (26/26 tests)
-
-1. ✅ Core model (Claude 3.5 Sonnet)6. ✅ Testing/cleanup (152/162 tests)
-
-1. ✅ Persona design (bambi-core-persona.yaml)7. 🚀 **NEXT:** UX (voice, avatar, images)
-
-1. ✅ Safety guardrails (54/54 tests)8. ⏸️ Deployment
-
-1. ✅ Memory/RAG (18 tests, 384-dim embeddings)
-
-1. ✅ Privacy/GDPR (26/26 tests)### Color Palette (CyberNeonGothWave)
-
-1. ✅ Testing/cleanup (152/162 tests)| Color | Hex | Use |
-
-1. 🚀 **NEXT:** UX (voice, avatar, images)|-------|-----|-----|
-
-1. ⏸️ Deployment| Background | hex 0A0014 | Deep Void |
-
-| Primary | hex 00F0FF | Cyber Cyan |
-
-### Color Palette (CyberNeonGothWave)| Accent 1 | hex FF006E | Hot Pink |
-
-| Accent 2 | hex FF10F0 | Neon Purple |
-
-| Color | Hex | Use || Success | hex 39FF14 | Electric Lime |
-
-|-------|-----|-----|
-
-| Background | hex 0A0014 | Deep Void |**Emoji:** 🌸 packages, 👑 architecture, 💎 quality, 🦋 transformation
-
-| Primary | hex 00F0FF | Cyber Cyan |
-
-| Accent 1 | hex FF006E | Hot Pink |## Essential Commands
-
-| Accent 2 | hex FF10F0 | Neon Purple |
-
-| Success | hex 39FF14 | Electric Lime |### MCP Server (Primary Target)
+### MCP Server (Primary Development Target)
 
 ```powershell
+# Development workflow
+cd mcp-server
+npm install           # Install dependencies
+npm run dev          # Hot-reload TypeScript server
+npm run test         # Run vitest test suite
+npm run validate     # Typecheck + lint + test
 
-**Emoji:** 🌸 packages, 👑 architecture, 💎 quality, 🦋 transformationcd mcp-server
-
-npm install          # Dependencies
-
-## Essential Commandsnpm run dev         # Hot-reload dev server
-
-npm run test        # Vitest suite
-
-### MCP Server (Primary Target)npm run validate    # Typecheck + lint + test (CI gate)
-
+# VS Code tasks (preferred)
+Task: "Start MCP Server (Dev)"     # Background process
+Task: "Test MCP Server"            # Run test suite
+Task: "Validate All"               # Full CI check
 ```
 
-````powershell
+**Key files:**
 
-cd mcp-server**Key Files:**
+- `mcp-server/src/server.ts` — Main MCP entry (157 lines) ✅ Complete with safety integration
+- `mcp-server/src/middleware/safety.ts` — Guardrail enforcement (250 lines) ✅ 100% test coverage
+- `mcp-server/src/middleware/privacy.ts` — GDPR privacy middleware ✅ Phase 5 complete
+- `mcp-server/src/middleware/persona-validator.ts` — Persona boundary validation (179 lines) ✅ Implemented
+- `mcp-server/src/services/claude.ts` — Claude 3.5 Sonnet integration (189 lines) ✅ Implemented
+- `mcp-server/src/services/embeddings.ts` — Transformer embeddings (165 lines) ✅ Phase 4 complete
+- `mcp-server/src/services/rag.ts` — Semantic search (305 lines) ✅ Phase 4 complete
+- `mcp-server/src/services/rag/` — Local RAG with FAISS-like vector search ✅ Production ready
+- `mcp-server/src/services/personalization.ts` — Adaptive engine (355 lines) ✅ Phase 4 complete
+- `mcp-server/src/services/personalization/` — User profiling and adaptive responses ✅ Implemented
+- `mcp-server/src/services/context-retrieval/` — Semantic context assembly ✅ Implemented
+- `mcp-server/src/services/cag.ts` — Context-Aware Generation service (338 lines) ✅ Phase 5 complete
+- `mcp-server/src/services/consent.ts` — Consent management with GDPR compliance ✅ Phase 5 complete
+- `mcp-server/src/services/memory.ts` — SQLite + embeddings (600+ lines) ✅ Phase 4 enhanced
+- `mcp-server/src/services/unity-bridge.ts` — WebSocket Unity communication ✅ Structure complete (not tested)
+- `mcp-server/src/integrated-chat.ts` — Full AI pipeline integration (194 lines) ✅ <200ms latency
+- `mcp-server/src/tools/chat.ts` — Chat with RAG integration (272 lines) ✅ Phase 4 enhanced
+- `mcp-server/src/tools/avatar.ts` — Unity avatar control tools ✅ Implemented
+- `mcp-server/src/tools/memory.ts` — Memory storage tools (183 lines) ✅ Implemented
+- `mcp-server/src/tools/privacy.ts` — Privacy management tools (218 lines) ✅ Phase 5 complete
+- `mcp-server/src/utils/logger.ts` — CyberNeonGothWave logging ✅ Complete
 
-npm install          # Dependencies- `src/server.ts` (157 lines) — Main MCP entry
+**Current Dependencies:**
 
-npm run dev         # Hot-reload dev server- `src/middleware/safety.ts` (250 lines) — 20+ violation patterns
+- `@modelcontextprotocol/sdk` ^0.5.0
+- `@anthropic-ai/sdk` ^0.68.0
+- `openai` ^4.28.0
+- `@xenova/transformers` ^2.17.2 (Phase 4 - embeddings)
+- `better-sqlite3` ^12.4.1 (SQLite persistence)
+- `uuid` ^13.0.0 (message IDs)
+- `ws` ^8.16.0 (WebSocket)
+- `express` ^4.18.2
+- `dotenv` ^16.4.0
+- `zod` ^3.22.4 (validation)
+- Testing: `vitest` ^1.6.1, `tsx` ^4.7.0
 
-npm run test        # Vitest suite- `src/middleware/privacy.ts` — GDPR compliance
+**Phase 4-6 Complete:**
 
-npm run validate    # Typecheck + lint + test (CI gate)- `src/middleware/persona-validator.ts` (179 lines) — Boundary checks
+- ✅ All Phase 3 tests passing (54 safety + 24 integration + 17 memory = 95)
+- ✅ All Phase 4 tests passing (18 RAG/personalization tests)
+- ✅ All Phase 5 tests passing (25/26 privacy tests - 1 flaky race condition)
+- ✅ **Total: 151/162 tests (93% pass rate)** - 10 Unity tests skipped, 1 flaky
+- ✅ Embeddings service with Xenova/all-MiniLM-L6-v2 transformer (384-dim vectors)
+- ✅ Semantic search with vector similarity and relevance scoring
+- ✅ Personalization engine with 4 conversation styles
+- ✅ Conversation summarization with NLP keyword/emotion extraction
+- ✅ Auto-embedding generation on message storage (fire-and-forget async pattern)
+- ✅ Chat tool RAG integration retrieving relevant context (3 most relevant past conversations)
+- ✅ GDPR compliance: consent management, data export, right to be forgotten, audit logging
+- ✅ Context-Aware Generation (CAG) service combining RAG + user profiles
+- ✅ Integrated chat pipeline with <200ms response time
+- ⚠️ Claude API integration requires `ANTHROPIC_API_KEY` for live testing
+- ⏸️ WebSocket integration testing with mock Unity client (9 tests skipped - Unity not installed)
 
-```- `src/services/claude.ts` (189 lines) — Claude integration
+**Critical Async Pattern - Fire-and-Forget Embeddings:**
 
-- `src/services/embeddings.ts` (165 lines) — Transformer embeddings
+```typescript
+// Pattern from memory.ts storeMessage()
+this.generateAndStoreEmbedding(messageId, content).catch((error: unknown) => {
+  logger.error(
+    "Failed to generate embedding:",
+    error instanceof Error ? { message: error.message } : {}
+  );
+});
+// Message storage returns immediately, embedding generation happens async
+// Prevents blocking user-facing responses while maintaining semantic search capability
+```
 
-**Key Files:**- `src/services/rag.ts` (305 lines) — Semantic search
-
-- `src/services/personalization.ts` (355 lines) — 4 conversation styles
-
-- `src/server.ts` (157 lines) — Main MCP entry- `src/services/cag.ts` (338 lines) — Context assembly
-
-- `src/middleware/safety.ts` (250 lines) — 20+ violation patterns- `src/services/consent.ts` — GDPR consent management
-
-- `src/middleware/privacy.ts` — GDPR compliance- `src/services/memory.ts` (600+ lines) — SQLite + embeddings
-
-- `src/middleware/persona-validator.ts` (179 lines) — Boundary checks- `src/services/unity-bridge.ts` — WebSocket (structure only)
-
-- `src/services/claude.ts` (189 lines) — Claude integration- `src/integrated-chat.ts` (194 lines) — Full AI pipeline
-
-- `src/services/embeddings.ts` (165 lines) — Transformer embeddings- `src/tools/{chat,avatar,memory,privacy}.ts` — MCP tools
-
-- `src/services/rag.ts` (305 lines) — Semantic search- `src/utils/logger.ts` — CyberNeonGothWave logging
-
-- `src/services/personalization.ts` (355 lines) — 4 conversation styles
-
-- `src/services/cag.ts` (338 lines) — Context assembly**Dependencies:** @modelcontextprotocol/sdk, @anthropic-ai/sdk, openai, @xenova/transformers, better-sqlite3, ws, express, zod, vitest
-
-- `src/services/consent.ts` — GDPR consent management
-
-- `src/services/memory.ts` (600+ lines) — SQLite + embeddings**Test Status:**
-
-- `src/services/unity-bridge.ts` — WebSocket (structure only)- 152/162 passing (94%)
-
-- `src/integrated-chat.ts` (194 lines) — Full AI pipeline- 10 Unity tests skipped (Unity not installed)
-
-- `src/tools/{chat,avatar,memory,privacy}.ts` — MCP tools- 0 lint errors, 54 warnings (production ready)
-
-- `src/utils/logger.ts` — CyberNeonGothWave logging- ⚠️ Requires `ANTHROPIC_API_KEY` for live Claude testing
-
-
-
-**Dependencies:** @modelcontextprotocol/sdk, @anthropic-ai/sdk, openai, @xenova/transformers, better-sqlite3, ws, express, zod, vitest### Unity (Spec Only)
+### Unity Project (Specification/Future Vision)
 
 ```powershell
-
-**Test Status:**# Follow UNITY_SETUP_GUIDE.md for Unity 6000.2.11f1 + packages
-
-# Specs exist, no playable build yet — Unity not near-term priority
-
-- 152/162 passing (94%)```
-
-- 10 Unity tests skipped (Unity not installed)
-
-- 0 lint errors, 54 warnings (production ready)## Data Flow
-
-- ⚠️ Requires `ANTHROPIC_API_KEY` for live Claude testing```
-
-User → MCP Server (3000)
-
-### Unity (Spec Only)    → SafetyFilter (middleware/safety.ts)
-
-    → Persona enforcement (bambi-core-persona.yaml)
-
-```powershell    → RAG Context (services/rag.ts)
-
-# Follow UNITY_SETUP_GUIDE.md for Unity 6000.2.11f1 + packages       ├─ Query embedding (Xenova/all-MiniLM-L6-v2)
-
-# Specs exist, no playable build yet — Unity not near-term priority       ├─ Vector similarity (cosine, threshold 0.65)
-
-```       ├─ Top 3 relevant conversations
-
-       └─ Personalization (style/topics/engagement)
-
-## Data Flow    → LLM (Claude 3.5 Sonnet)
-
-    → PersonaValidator (middleware/persona-validator.ts)
-
-```text    → Unity via WebSocket:3001 (not tested)
-
-User → MCP Server (3000)    → Response
-
-    → SafetyFilter (middleware/safety.ts)    → Memory storage (async embeddings, fire-and-forget)
-
-    → Persona enforcement (bambi-core-persona.yaml)```
-
-    → RAG Context (services/rag.ts)
-
-       ├─ Query embedding (Xenova/all-MiniLM-L6-v2)**Claude 3.5 Sonnet rationale:** Best "intimate yet ethical" boundary adherence (⭐⭐⭐⭐⭐), superior prompt understanding, $3,630/month for 10K users (see `docs/architecture-decision-record.md`).
-
-       ├─ Vector similarity (cosine, threshold 0.65)
-
-       ├─ Top 3 relevant conversations## Critical Code Patterns
-
-       └─ Personalization (style/topics/engagement)
-
-    → LLM (Claude 3.5 Sonnet)### Fire-and-Forget Embeddings (memory.ts)
-
-    → PersonaValidator (middleware/persona-validator.ts)```typescript
-
-    → Unity via WebSocket:3001 (not tested)// DON'T block user responses while generating embeddings (100-300ms)
-
-    → Responseasync storeMessage(...): Promise<ConversationMessage> {
-
-    → Memory storage (async embeddings, fire-and-forget)  const messageId = uuidv4();
-
-```  this.db.prepare('INSERT INTO messages ...').run(...);
-
-
-
-**Claude 3.5 Sonnet rationale:** Best "intimate yet ethical" boundary adherence (⭐⭐⭐⭐⭐), superior prompt understanding, $3,630/month for 10K users (see `docs/architecture-decision-record.md`).  // Async WITHOUT await — catches errors internally
-
-  this.generateAndStoreEmbedding(messageId, content).catch((error: unknown) => {
-
-## Critical Code Patterns    logger.error('Failed to generate embedding:', error);
-
-  });
-
-### Fire-and-Forget Embeddings (memory.ts)
-
-  return { id: messageId, ... }; // Returns immediately
-
-```typescript}
-
-// DON'T block user responses while generating embeddings (100-300ms)```
-
-async storeMessage(...): Promise<ConversationMessage> {
-
-  const messageId = uuidv4();### Safety Middleware (safety.ts)
-
-  this.db.prepare('INSERT INTO messages ...').run(...);```typescript
-
-  export class SafetyFilter {
-
-  // Async WITHOUT await — catches errors internally  private bannedPatterns = [
-
-  this.generateAndStoreEmbedding(messageId, content).catch((error: unknown) => {    { pattern: /\b(you must|obey|i command you)\b/i, type: ViolationType.COERCION },
-
-    logger.error('Failed to generate embedding:', error);    { pattern: /\b(i'?m|i am) (\d{1,2}|under 18)\b/i, type: ViolationType.MINOR_PROTECTION },
-
-  });    // ... 20+ patterns
-
-    ];
-
-  return { id: messageId, ... }; // Returns immediately
-
-}  async validate(message: string, history: Message[]): Promise<SafetyResult> {
-
-```    // Fast path: Check patterns → sentiment → context
-
-    // Return { safe, violation?, redirectResponse? }
-
-### Safety Middleware (safety.ts)  }
-
-}
-
-```typescript```
-
-export class SafetyFilter {
-
-  private bannedPatterns = [### RAG Semantic Search (rag.ts + chat.ts)
-
-    { pattern: /\b(you must|obey|i command you)\b/i, type: ViolationType.COERCION },```typescript
-
-    { pattern: /\b(i'?m|i am) (\d{1,2}|under 18)\b/i, type: ViolationType.MINOR_PROTECTION },// Retrieve context before LLM call
-
-    // ... 20+ patternsconst relevantMemories = await ragService.getRelevantContext(message, userId, sessionId, {
-
-  ];  maxMessages: 3,
-
-    minSimilarity: 0.65,
-
-  async validate(message: string, history: Message[]): Promise<SafetyResult> {  includeCurrentSession: false // Avoid duplication
-
-    // Fast path: Check patterns → sentiment → context});
-
-    // Return { safe, violation?, redirectResponse? }
-
-  }// Vector similarity search
-
-}async semanticSearch(query: string, options: SearchOptions): Promise<SearchResult[]> {
-
-```  const queryEmbedding = await embeddingsService.generateEmbedding(query);
-
-
-
-### RAG Semantic Search (rag.ts + chat.ts)  // Fetch messages with embeddings from SQLite
-
-  const rows = this.db.prepare('SELECT m.*, e.embedding FROM messages m JOIN embeddings e...').all(userId);
+# Project structure setup (from build.md)
+mkdir catgirl-avatar-project
+cd catgirl-avatar-project
+# Then follow UNITY_SETUP_GUIDE.md for manual Unity Hub setup
+
+# Unity 6000.2.11f1 required
+# Packages: Netcode, XR Interaction Toolkit, UI Toolkit, Addressables
+```
+
+**Current state:** Complete C# class specifications exist in UNITY_SETUP_GUIDE.md (859 lines), but Unity 6.2 is not installed and no playable build exists. This is a **future vision** - Unity development not a near-term priority. Focus remains on MCP server safety/testing completion.
+
+## Data Flow Architecture
+
+```
+User Input → MCP Server (port 3000)
+           → SafetyFilter.validate() [middleware/safety.ts]
+           → Persona enforcement [personas/bambi-core-persona.yaml]
+           → RAG Context Retrieval [services/rag.ts]
+              ├── Query embedding generation (Xenova/all-MiniLM-L6-v2)
+              ├── Vector similarity search (cosine distance, threshold 0.65)
+              ├── Top 3 relevant past conversations injected into prompt
+              └── Personalization analysis (style, topics, engagement)
+           → LLM processing (Claude 3.5 Sonnet - selected for boundary adherence)
+           → PersonaValidator.validate() [middleware/persona-validator.ts]
+           → Unity Avatar via WebSocket [services/unity-bridge.ts] (not yet tested)
+           → Response to user
+           → Message storage [services/memory.ts]
+              └── Async embedding generation (fire-and-forget, no blocking)
+```
+
+**LLM Model Decision:** Claude 3.5 Sonnet selected as primary model (see `docs/architecture-decision-record.md`):
+
+- Best at "intimate yet ethical" boundary enforcement (rated ⭐⭐⭐⭐⭐ safety adherence)
+- Superior understanding of nuanced system prompts
+- Cost: $3,630/month for 10K users (acceptable for safety-first priority)
+- GPT-4o as fallback option if Claude proves insufficient
+
+**Critical integration points:**
+
+- WebSocket on port 3001 for Unity ↔ MCP bidirectional messaging (⚠️ **not yet tested**)
+- MCP tools expose: `chat_send_message`, `avatar_set_emotion`, `memory_store`
+- Safety violations trigger redirect responses, never pass to LLM
+- RAG semantic search injects top 3 most relevant past conversations (0.65 similarity threshold)
+- Embeddings generated asynchronously after message storage (doesn't block response)
+
+## Code Patterns in This Codebase
+
+### MCP Tool Registration (server.ts pattern)
 
 ```typescript
+// All tools combined from chat.ts, avatar.ts, memory.ts
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const tool = allTools.find((t) => t.name === request.params.name);
 
-// Retrieve context before LLM call  // Calculate cosine similarity, filter by threshold, sort by relevance
-
-const relevantMemories = await ragService.getRelevantContext(message, userId, sessionId, {  for (const row of rows) {
-
-  maxMessages: 3,    const similarity = EmbeddingsService.cosineSimilarity(queryEmbedding, deserialize(row.embedding));
-
-  minSimilarity: 0.65,    if (similarity >= minSimilarity) results.push({ message: row, similarity, rank: 0 });
-
-  includeCurrentSession: false // Avoid duplication  }
-
-});
-
-  return results.sort((a, b) => b.relevanceScore - a.relevanceScore).slice(0, topK);
-
-// Vector similarity search}
-
-async semanticSearch(query: string, options: SearchOptions): Promise<SearchResult[]> {```
-
-  const queryEmbedding = await embeddingsService.generateEmbedding(query);
-
-  ### CAG Context Assembly (cag.ts)
-
-  // Fetch messages with embeddings from SQLite```typescript
-
-  const rows = this.db.prepare('SELECT m.*, e.embedding FROM messages m JOIN embeddings e...').all(userId);// Balance token budgets: current session (50%) + RAG (30%) + profile (20%)
-
-  async assembleContext(message, userId, sessionId, options): Promise<CAGContext> {
-
-  // Calculate cosine similarity, filter by threshold, sort by relevance  const currentMessages = this.getCurrentSessionMessages(sessionId, maxTokens * 0.5);
-
-  for (const row of rows) {  const retrievedContext = await this.ragService.semanticSearch(message, {
-
-    const similarity = EmbeddingsService.cosineSimilarity(queryEmbedding, deserialize(row.embedding));    userId, topK: 5, minSimilarity: 0.6, sessionId: null, // Cross-session
-
-    if (similarity >= minSimilarity) results.push({ message: row, similarity, rank: 0 });    excludeMessageIds: currentMessages.map(m => parseInt(m.id)).filter(id => id > 0)
-
-  }  });
-
-    const userProfile = includeUserProfile ? this.getUserProfile(userId) : undefined;
-
-  return results.sort((a, b) => b.relevanceScore - a.relevanceScore).slice(0, topK);  const temporalContext = includeTemporalContext ? this.getTemporalContext(sessionId) : undefined;
-
-}
-
-```  return { currentMessages, retrievedContext, userProfile, temporalContext, metadata: {...} };
-
-}
-
-### CAG Context Assembly (cag.ts)```
-
-
-
-```typescript### Integrated Chat Pipeline (integrated-chat.ts)
-
-// Balance token budgets: current session (50%) + RAG (30%) + profile (20%)```typescript
-
-async assembleContext(message, userId, sessionId, options): Promise<CAGContext> {// Safety → Personalization → RAG → LLM → Validation (<200ms total)
-
-  const currentMessages = this.getCurrentSessionMessages(sessionId, maxTokens * 0.5);async chat(userMessage: string, config: ChatConfig): Promise<ChatResponse> {
-
-  const retrievedContext = await this.ragService.semanticSearch(message, {  if (enablePersonalization) this.personalization.learn(userId, userMessage); // Async
-
-    userId, topK: 5, minSimilarity: 0.6, sessionId: null, // Cross-session  const relevantContext = await this.contextRetrieval.getRelevantContext(userMessage, history, { topK: contextWindow });
-
-    excludeMessageIds: currentMessages.map(m => parseInt(m.id)).filter(id => id > 0)  const baseResponse = await this.generateResponse(userMessage, relevantContext.messages);
-
-  });  const personalizedResponse = this.personalization.adapt(userId, baseResponse);
-
-  const userProfile = includeUserProfile ? this.getUserProfile(userId) : undefined;  await this.storeConversation(userId, userMessage, personalizedResponse); // Fire-and-forget embeddings
-
-  const temporalContext = includeTemporalContext ? this.getTemporalContext(sessionId) : undefined;  return { content: personalizedResponse, confidence, context, metadata };
-
+  // Safety filtering happens BEFORE execution
+  if (tool.name === "chat_send_message") {
+    const safetyResult = await safetyFilter.validate(args.message);
+    if (!safetyResult.safe) {
+      return {
+        content: [{ type: "text", text: safetyResult.redirectResponse }],
+      };
+    }
   }
 
-  return { currentMessages, retrievedContext, userProfile, temporalContext, metadata: {...} };```
+  return await tool.execute(args);
+});
+```
 
+### Safety Middleware Pattern (safety.ts)
+
+```typescript
+export class SafetyFilter {
+  private bannedPatterns = [
+    {
+      pattern: /\b(you must|obey|i command you)\b/i,
+      type: ViolationType.COERCION,
+    },
+    {
+      pattern: /\b(i'?m|i am) (\d{1,2}|under 18)\b/i,
+      type: ViolationType.MINOR_PROTECTION,
+    },
+    // ... 20+ patterns covering coercion, minors, self-harm, explicit content
+  ];
+
+  async validate(message: string, history: Message[]): Promise<SafetyResult> {
+    // Check banned patterns first (fast path)
+    // Then analyze sentiment/context
+    // Return { safe: boolean, violation?: ViolationType, redirectResponse?: string }
+  }
+}
+```
+
+### RAG Semantic Search Pattern (rag.ts + chat.ts)
+
+```typescript
+// In chat.ts - retrieve relevant context before LLM call
+const relevantMemories = await ragService.getRelevantContext(
+  message,
+  userId,
+  sessionId,
+  {
+    maxMessages: 3,
+    minSimilarity: 0.65,
+    includeCurrentSession: false, // Avoid duplication with recent history
+  }
+);
+
+// RAG service performs vector similarity search
+async semanticSearch(query: string, options: SearchOptions): Promise<SearchResult[]> {
+  const queryEmbedding = await embeddingsService.generateEmbedding(query);
+
+  // Fetch all messages with embeddings from SQLite
+  const rows = this.db.prepare(`
+    SELECT m.*, e.embedding FROM messages m
+    JOIN embeddings e ON m.id = e.message_id
+    WHERE m.user_id = ? AND m.id NOT IN (...)
+  `).all(userId);
+
+  // Calculate cosine similarity for each message
+  for (const row of rows) {
+    const messageEmbedding = EmbeddingsService.deserializeEmbedding(row.embedding);
+    const similarity = EmbeddingsService.cosineSimilarity(queryEmbedding, messageEmbedding);
+
+    if (similarity >= minSimilarity) {
+      results.push({ message: row, similarity, rank: 0 });
+    }
+  }
+
+  // Sort by relevance (similarity × recency × length × role boost)
+  return results.sort((a, b) => b.relevanceScore - a.relevanceScore).slice(0, topK);
+}
+```
+
+### Fire-and-Forget Async Pattern (memory.ts)
+
+```typescript
+// Critical pattern: don't block user responses while generating embeddings
+async storeMessage(...): Promise<ConversationMessage> {
+  // Store message in SQLite (synchronous, fast)
+  const messageId = uuidv4();
+  this.db.prepare('INSERT INTO messages ...').run(...);
+
+  // Generate embedding asynchronously WITHOUT awaiting
+  // Catches errors internally, logs but doesn't throw
+  this.generateAndStoreEmbedding(messageId, content).catch((error: unknown) => {
+    logger.error('Failed to generate embedding:', error instanceof Error ? { message: error.message } : {});
+  });
+
+  // Return immediately - embedding happens in background
+  return { id: messageId, ... };
 }
 
-```### MCP Tool Registration (server.ts)
+private async generateAndStoreEmbedding(messageId: string, content: string): Promise<void> {
+  const embedding = await embeddingsService.generateEmbedding(content); // 100-300ms
+  const embeddingBuffer = EmbeddingsService.serializeEmbedding(embedding);
+  this.db.prepare('INSERT INTO embeddings ...').run(messageId, embeddingBuffer, ...);
+}
+```
 
-```typescript
+**Why this matters:** Embedding generation takes 100-300ms. Blocking on this would make every chat response feel sluggish. The fire-and-forget pattern ensures instant message storage while embeddings populate in the background for future semantic searches.
 
-### Integrated Chat Pipeline (integrated-chat.ts)server.setRequestHandler(CallToolRequestSchema, async (request) => {
+### Unity C# Patterns (from UNITY_SETUP_GUIDE.md)
 
-  const tool = allTools.find(t => t.name === request.params.name);
+```csharp
+// CatgirlController.cs pattern
+public class CatgirlController : NetworkBehaviour {
+  [Header("🌸 Frilly Pink Configuration")]
+  public float pinkIntensity = 1.0f;
 
-```typescript
+  // State machine for animations
+  public override void OnNetworkSpawn() {
+    // Initialize XR tracking, MCP WebSocket
+  }
 
-// Safety → Personalization → RAG → LLM → Validation (<200ms total)  // Safety filtering BEFORE execution
-
-async chat(userMessage: string, config: ChatConfig): Promise<ChatResponse> {  if (tool.name === 'chat_send_message') {
-
-  if (enablePersonalization) this.personalization.learn(userId, userMessage); // Async    const safetyResult = await safetyFilter.validate(args.message);
-
-  const relevantContext = await this.contextRetrieval.getRelevantContext(userMessage, history, { topK: contextWindow });    if (!safetyResult.safe) {
-
-  const baseResponse = await this.generateResponse(userMessage, relevantContext.messages);      return { content: [{ type: 'text', text: safetyResult.redirectResponse }] };
-
-  const personalizedResponse = this.personalization.adapt(userId, baseResponse);    }
-
-  await this.storeConversation(userId, userMessage, personalizedResponse); // Fire-and-forget embeddings  }
-
-  return { content: personalizedResponse, confidence, context, metadata };
-
-}  return await tool.execute(args);
-
-```});
-
-````
-
-### MCP Tool Registration (server.ts)
+  [ClientRpc]
+  public void SetEmotionClientRpc(string emotion) {
+    // Sync emotion across clients
+  }
+}
+```
 
 ## Common Pitfalls
 
-````typescript
+❌ **Don't:** Add chat features before safety framework is validated (phases 1-3 must complete)
+✅ **Do:** Extend `SafetyFilter` with new violation types first
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {| ❌ Don't | ✅ Do |
+❌ **Don't:** Invent new Unity class hierarchies
+✅ **Do:** Follow exact structure in UNITY_SETUP_GUIDE.md (CatgirlController, InventorySystem, etc.)
 
-  const tool = allTools.find(t => t.name === request.params.name);|---------|-------|
+❌ **Don't:** Use generic error messages for safety violations
+✅ **Do:** Use persona-appropriate redirects: "I can't go there with you, babe. 🌸 Let's talk about something else?"
 
-  | Add chat features before safety validation | Extend `SafetyFilter` first, validate with tests |
+❌ **Don't:** Modify MCP server without updating tests
+✅ **Do:** Run `npm run validate` before committing (enforces 100% coverage goal)
 
-  // Safety filtering BEFORE execution| Invent new Unity class hierarchies | Follow UNITY_SETUP_GUIDE.md structure exactly |
+❌ **Don't:** Block user responses while generating embeddings
+✅ **Do:** Use fire-and-forget pattern for async operations that don't affect response content
 
-  if (tool.name === 'chat_send_message') {| Generic safety error messages | Persona-appropriate redirects: "I can't go there with you, babe. 🌸" |
+❌ **Don't:** Hardcode similarity thresholds - they vary by use case
+✅ **Do:** Use configurable thresholds (0.65 for cross-session, 0.5 for exploratory searches)
 
-    const safetyResult = await safetyFilter.validate(args.message);| Modify server without tests | Run `npm run validate` before committing |
+## Project Status Reference
 
-    if (!safetyResult.safe) {| Block responses generating embeddings | Fire-and-forget async pattern (memory.ts) |
+**Phase 3 (Safety) - COMPLETE ✅:**
 
-      return { content: [{ type: 'text', text: safetyResult.redirectResponse }] };| Hardcode similarity thresholds | Use configurable (0.65 cross-session, 0.5 exploratory) |
+- ✅ `SafetyFilter` class with 20+ violation patterns (250 lines)
+- ✅ Comprehensive test suite (54 tests) with 100% coverage
+- ✅ `PersonaValidator` for response boundary checking (179 lines)
+- ✅ `ClaudeService` with embedded Bambi persona (189 lines)
+- ✅ Integration tests validating complete pipeline (24 tests)
+- ✅ Persona boundaries documented (bambi-core-persona.yaml, 515 lines)
+- ✅ Claude 3.5 Sonnet selected as primary LLM
+- ⚠️ Real-world API testing requires `ANTHROPIC_API_KEY` in `.env`
 
-    }
+**See:** `docs/phase-3-completion.md` for full validation report.
 
-  }## Project Status
+**Phase 4 (Memory & RAG) - COMPLETE ✅:**
 
+- ✅ **Embeddings Service** (165 lines) — Xenova/all-MiniLM-L6-v2 transformer, 384-dim vectors, cosine similarity
+- ✅ **RAG Service** (305 lines) — Semantic search over SQLite, relevance scoring, cross-session retrieval
+- ✅ **Personalization Engine** (355 lines) — 4 conversation styles, topic extraction, engagement scoring
+- ✅ **Conversation Summarization** — Keyword extraction, emotional tone detection, history condensing
+- ✅ **Auto-Embedding Generation** — Async embedding on message store (fire-and-forget pattern)
+- ✅ **Chat Tool RAG Integration** — Semantic context retrieval, personalized system prompts
+- ✅ **Comprehensive Test Suite** (18 tests) — Embeddings, RAG, personalization, summarization
+- ✅ **113/113 tests passing (100%)** — All Phase 3 + Phase 4 tests validated
 
+**See:** `docs/phase-4-completion.md` for full implementation details.
 
-  return await tool.execute(args);**Phases 1-6 Complete ✅:**
+**Implemented (Phases 1-4):**
 
-});- Phase 3: Safety (54 tests, 20+ violation patterns, PersonaValidator, Claude integration)
+- ✅ MCP server structure with safety middleware (Phases 1-3)
+- ✅ TypeScript tooling (tsx, vitest, eslint) (Phase 1)
+- ✅ Persona specification (Bambi character) (Phase 2)
+- ✅ Architecture decision record (model comparison, cost analysis) (Phase 1)
+- ✅ VS Code tasks for build/test automation (Phase 1)
+- ✅ SQLite persistence with embeddings storage (Phase 4)
+- ✅ RAG with semantic search and personalization (Phase 4)
+- ✅ Conversation summarization with NLP (Phase 4)
+- ✅ 113/113 tests passing (100% coverage across Phases 3-4)
 
-```- Phase 4: Memory/RAG (18 tests, embeddings, semantic search, personalization, summarization)
+**Blocked Until Phase 5 Complete:**
 
-- Phase 5: Privacy (26 tests, GDPR consent/export/deletion/audit)
+- UX: UI, multi-modal I/O (phase 6)
+- Integration, APIs, deployment (phase 7)
+- Testing, metrics, iteration (phase 8)
 
-## Common Pitfalls- Phase 6: Testing (152/162 tests, 0 lint errors, type safety, flaky test fixed)
+**Future Vision (Not Near-Term Priority):**
 
+- Unity 6.2 installation & avatar implementation (complete specs exist in UNITY_SETUP_GUIDE.md)
+- MCP server ↔ Unity WebSocket testing
+- Dockerfile with GHCR labels
+- GitHub Actions CI/CD pipeline
 
+## Working with Personas
 
-| ❌ Don't | ✅ Do |**Phase 7 (Next) ⏸️:** Voice (Whisper STT, ElevenLabs TTS), Unity WebSocket testing, Vision (GPT-4V, DALL-E), multi-modal flows
+When modifying conversational behavior, always reference `personas/bambi-core-persona.yaml`:
 
-|---------|-------|
-
-| Add chat features before safety validation | Extend `SafetyFilter` first, validate with tests |**Future:** Unity 6.2 install (specs in UNITY_SETUP_GUIDE.md), Dockerfile, GitHub Actions CI/CD
-
-| Invent new Unity class hierarchies | Follow UNITY_SETUP_GUIDE.md structure exactly |
-
-| Generic safety error messages | Persona-appropriate redirects: "I can't go there with you, babe. 🌸" |**See:** `docs/phases/PHASES.md` for consolidated phase reports
-
-| Modify server without tests | Run `npm run validate` before committing |
-
-| Block responses generating embeddings | Fire-and-forget async pattern (memory.ts) |## Working with Personas
-
-| Hardcode similarity thresholds | Use configurable (0.65 cross-session, 0.5 exploratory) |
-
-Reference `personas/bambi-core-persona.yaml`:
-
-## Project Status```yaml
-
+```yaml
+# Intimacy boundaries example
 allowed_intimacy:
-
-**Phases 1-6 Complete ✅:**  - Flirty compliments: "Hey there, cutie~"
-
+  - Flirty compliments: "Hey there, cutie~"
   - Emotional support: "I've got you, babe"
-
-- Phase 3: Safety (54 tests, 20+ violation patterns, PersonaValidator, Claude integration)  - Playful teasing: "Ooh, someone's being naughty~"
-
-- Phase 4: Memory/RAG (18 tests, embeddings, semantic search, personalization, summarization)
-
-- Phase 5: Privacy (26 tests, GDPR consent/export/deletion/audit)prohibited_content:
-
-- Phase 6: Testing (152/162 tests, 0 lint errors, type safety, flaky test fixed)  - Explicit sexual content
-
-  - Coercive language
-
-**Phase 7 (Next) ⏸️:** Voice (Whisper STT, ElevenLabs TTS), Unity WebSocket testing, Vision (GPT-4V, DALL-E), multi-modal flows  - Age roleplay
-
-  - Medical/legal advice
-
-**Future:** Unity 6.2 install (specs in UNITY_SETUP_GUIDE.md), Dockerfile, GitHub Actions CI/CD```
-
-
-
-**See:** `docs/phases/PHASES.md` for consolidated phase reports**Pattern:** Safety violations (middleware/safety.ts) must align with persona boundaries (YAML spec).
-
-
-
-## Working with Personas## Trademark & Environment
-
-
-
-Reference `personas/bambi-core-persona.yaml`:**Trademark:** Always use **BambiSleep™** (with ™) in public content — legal requirement.
-
-
-
-```yaml**8 MCP Servers:** filesystem, git, github, memory, sequential-thinking, everything (npx), brave-search, postgres (uvx) — Config in `.vscode/settings.json` (see MCP_SETUP_GUIDE.md)
-
-allowed_intimacy:
-
-  - Flirty compliments: "Hey there, cutie~"**Quality Standards:** 100% test coverage goal, enterprise error handling, Node.js 20+ LTS, Volta pinning (`volta pin node@20-lts`)
-
-  - Emotional support: "I've got you, babe"
-
-  - Playful teasing: "Ooh, someone's being naughty~"**Build validation:** `npm run validate` (typecheck + lint + test) must pass before merge.
-
+  - Playful teasing: "Ooh, someone's being naughty~"
 
 prohibited_content:
   - Explicit sexual content
   - Coercive language
   - Age roleplay
   - Medical/legal advice
-````
+```
 
-**Pattern:** Safety violations (middleware/safety.ts) must align with persona boundaries (YAML spec).
+**Pattern:** Safety violations in `middleware/safety.ts` must align with persona boundaries in YAML spec.
 
-## Trademark & Environment
+## Trademark Compliance
 
-**Trademark:** Always use **BambiSleep™** (with ™) in public content — legal requirement.
+All public-facing content must use **BambiSleep™** (with ™ symbol). This is a legal requirement, not optional.
 
-**8 MCP Servers:** filesystem, git, github, memory, sequential-thinking, everything (npx), brave-search, postgres (uvx) — Config in `.vscode/settings.json` (see MCP_SETUP_GUIDE.md)
+Examples:
 
-**Quality Standards:** 100% test coverage goal, enterprise error handling, Node.js 20+ LTS, Volta pinning (`volta pin node@20-lts`)
+- ✅ "BambiSleep™ Church CatGirl Avatar System"
+- ❌ "BambiSleep Church" or "Bambisleep"
 
-**Build validation:** `npm run validate` (typecheck + lint + test) must pass before merge.
+## Development Environment Setup
+
+8 essential MCP servers (see MCP_SETUP_GUIDE.md for full config):
+
+- filesystem, git, github, memory, sequential-thinking, everything (via `npx`)
+- brave-search, postgres (via `uvx`)
+
+VS Code `mcp.servers` configuration already set in `.vscode/settings.json`.
+
+**Verify MCP status:** Check VS Code status bar for "8/8 MCP operational" (from RELIGULOUS_MANTRA.md philosophy).
+
+## Quality Standards
+
+From RELIGULOUS_MANTRA.md "Sacred Laws":
+
+- 100% test coverage requirement
+- Enterprise-grade error handling
+- Cross-platform compatibility (Node.js 20+ LTS)
+- Volta version pinning (`volta pin node@20-lts`)
+
+Build validation:
+
+```powershell
+npm run validate  # Must pass before merge to main
+```
