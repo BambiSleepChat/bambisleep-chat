@@ -1,0 +1,10 @@
+{
+  "timestamp": "2025-11-09T04:49:51.344Z",
+  "restartCounts": {
+    "git": 1,
+    "sequential-thinking": 1,
+    "memory": 2,
+    "filesystem": 2
+  },
+  "runningServers": []
+}

@@ -1,0 +1,26 @@
+{
+  "name": "bambisleep-chat-orchestrator",
+  "version": "1.0.0",
+  "description": "MCP server orchestration with multi-agent coordination",
+  "main": "mcp-orchestrator.js",
+  "scripts": {
+    "start": "node mcp-orchestrator.js start --all",
+    "stop": "node mcp-orchestrator.js stop --all",
+    "restart": "node mcp-orchestrator.js restart --all",
+    "status": "node mcp-orchestrator.js status",
+    "health": "node mcp-orchestrator.js health"
+  },
+  "keywords": [
+    "mcp",
+    "orchestrator",
+    "agent-coordination",
+    "consciousness-detection",
+    "tiered-initialization"
+  ],
+  "author": "BambiSleep™ Church",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {}
+}
